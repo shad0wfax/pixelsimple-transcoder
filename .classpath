@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry including="**/*.java" kind="src" output="bin/test-classes" path="src/test/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="src" path="src/test/resources"/>
+	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
+	<classpathentry kind="var" path="IVY_HOME/cache/junit/junit/jars/junit-3.8.1.jar"/>
+	<classpathentry kind="var" path="IVY_HOME/cache/org.slf4j/slf4j-api/jars/slf4j-api-1.6.4.jar"/>
+	<classpathentry kind="var" path="IVY_HOME/cache/ch.qos.logback/logback-classic/jars/logback-classic-1.0.0.jar"/>
+	<classpathentry kind="var" path="IVY_HOME/cache/ch.qos.logback/logback-core/jars/logback-core-1.0.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="IVY_HOME"/>
+	<classpathentry kind="var" path="IVY_HOME/cache/org.apache.commons/commons-exec/jars/commons-exec-1.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/commons-command"/>
+	<classpathentry kind="output" path="bin/classes"/>
+</classpath>
