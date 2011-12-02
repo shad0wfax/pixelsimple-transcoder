@@ -11,7 +11,7 @@ import java.util.ResourceBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pixelsimple.transcoder.Transcoder;
+import com.pixelsimple.transcoder.VideoTranscoder;
 
 /**
  *
@@ -71,8 +71,8 @@ public class TakeForASpin {
 		}
 		LOG.debug("transcode::final params::{}", params);
 		
-		Transcoder transcoder = new Transcoder();
-		transcoder.transcode(params);
+		VideoTranscoder videoTranscoder = new VideoTranscoder();
+		videoTranscoder.transcode(params);
 	}
 
 }
