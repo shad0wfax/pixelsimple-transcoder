@@ -56,7 +56,7 @@ public class VideoTranscoder {
 		
 		LOG.debug("buildCommand::built command::{}", command);
 		
-		return new CommandRequest().addCommand(command, 1);
+		return new CommandRequest().addCommand(command, 0);
 	}
 
 }
