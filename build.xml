@@ -5,12 +5,17 @@
 <!-- ====================================================================== -->
 
 <project name="transcoder" default="publish-with-ivy" basedir=".">
+  <!-- ====================================================================== -->
+  <!-- The path to commons-build dir to pick resource from. Done so that it can be --> 
+  <!-- changed at the CI level as needed. The path to commonsBuild can be elsewhere on CI. -->
+  <!-- ====================================================================== -->
+  <property name="project.commonsBuildDir" value="../commons-build" />
 
   <!-- ====================================================================== -->
   <!-- Import maven-build.xml into the current project                        -->
   <!-- ====================================================================== -->
 
-  <import file="../commons-build/ant-jar-build.xml"/>
+  <import file="${project.commonsBuildDir}/ant-jar-build.xml"/>
   
   <!-- ====================================================================== -->
   <!-- Help target                                                            -->
