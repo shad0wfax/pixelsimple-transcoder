@@ -1,0 +1,3 @@
+Transcoder Repository
+-------------------------------
+This repo contains all the transcoder logic. This is the core of the transcoding piece that knows how to work with different media and apply different transcoding settings based on passed in inputs. 
