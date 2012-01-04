@@ -1,3 +1,4 @@
 Transcoder Repository
 -------------------------------
 This repo contains all the transcoder logic. This is the core of the transcoding piece that knows how to work with different media and apply different transcoding settings based on passed in inputs. 
+The transcoder will not be responsible in determining some key aspects like: bitrate. This will be passed to the transcoder by other intelligent modules like the profile manager or streaming parts.
