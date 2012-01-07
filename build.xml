@@ -4,13 +4,18 @@
 <!-- Ant build file (http://ant.apache.org/) for Ant 1.6.2 or above.        -->
 <!-- ====================================================================== -->
 
-<project name="transcoder" default="publish-with-ivy" basedir=".">
+<project name="transcoder" default="publish-with-ivy" basedir="."  xmlns:ivy="antlib:org.apache.ivy.ant">
   <!-- ====================================================================== -->
   <!-- The path to commons-build dir to pick resource from. Done so that it can be --> 
   <!-- changed at the CI level as needed. The path to commonsBuild can be elsewhere on CI. -->
   <!-- ====================================================================== -->
   <property name="project.commonsBuildDir" value="../commons-build" />
 
+  <!-- ====================================================================== -->
+  <!-- Ivy settings file path                                          -->
+  <!-- ====================================================================== -->
+  <ivy:settings file="${project.commonsBuildDir}/ivysettings.xml"/>	
+	
   <!-- ====================================================================== -->
   <!-- Import maven-build.xml into the current project                        -->
   <!-- ====================================================================== -->
