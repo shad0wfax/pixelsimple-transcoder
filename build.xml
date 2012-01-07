@@ -12,11 +12,6 @@
   <property name="project.commonsBuildDir" value="../commons-build" />
 
   <!-- ====================================================================== -->
-  <!-- Ivy settings file path                                          -->
-  <!-- ====================================================================== -->
-  <ivy:settings file="${project.commonsBuildDir}/ivysettings.xml"/>	
-	
-  <!-- ====================================================================== -->
   <!-- Import maven-build.xml into the current project                        -->
   <!-- ====================================================================== -->
 
