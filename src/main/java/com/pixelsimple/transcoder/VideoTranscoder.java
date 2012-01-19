@@ -8,6 +8,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pixelsimple.appcore.ApiConfig;
+import com.pixelsimple.appcore.RegistryService;
 import com.pixelsimple.commons.command.CommandRequest;
 import com.pixelsimple.commons.command.CommandResponse;
 import com.pixelsimple.commons.command.CommandRunner;
@@ -20,10 +22,8 @@ import com.pixelsimple.commons.command.CommandRunnerFactory;
  */
 public class VideoTranscoder {
 	public static final String FFMPEG_PATH = "ffmpeg_path"; 
-	public static final String VIDEO_INPUT_PATH = "video_input_path"; 
-	public static final String VIDEO_OUTPUT_PATH = "video_output_path"; 
-	public static final String INPUT_FILE_NAME = "input_file_name"; 
-	public static final String OUTPUT_FILE_NAME = "output_file_name";
+	public static final String INPUT_FILE_PATH_WITH_NAME = "input_file_name_with_path"; 
+	public static final String OUTPUT_FILE_PATH_WITH_NAME = "output_file_name_with_path";
 	
 	static final Logger LOG = LoggerFactory.getLogger(VideoTranscoder.class);
 	
@@ -45,14 +45,15 @@ public class VideoTranscoder {
 	 * @return
 	 */
 	private CommandRequest buildCommand(Map<String, String> params) {
-		String ffmpegPath = params.get(FFMPEG_PATH); 
-		String videoInputPath = params.get(VIDEO_INPUT_PATH); 
-		String videoOutputPath = params.get(VIDEO_OUTPUT_PATH);
-		String inputFileName = params.get(INPUT_FILE_NAME);
-		String outputFileName = params.get(OUTPUT_FILE_NAME);
+		ApiConfig apiConfig = RegistryService.getRegisteredApiConfig();
 		
-//		String command = "Z:/VmShare/Win7x64/Technology/ffmpeg/release_0.8_love/ffmpeg-git-78accb8-win32-static/bin/ffmpeg -y -i C:/Data/video_test/HTTYD_1-021_poor.mov -ar 22050 -ac 2 -vcodec flv C:/Data/video_test/transcoded/" + outputFileName;
-		String command = ffmpegPath + "ffmpeg -y -i " + videoInputPath + inputFileName + " -ar 22050 -ac 2 -vcodec flv " + videoOutputPath + outputFileName;
+		String ffmpegPath = apiConfig.getFfmpegConfig().getExecutablePath(); 
+
+		String videoInputPath = params.get(INPUT_FILE_PATH_WITH_NAME); 
+		String videoOutputPath = params.get(OUTPUT_FILE_PATH_WITH_NAME);
+		
+//		String command = "C:\dev\pixelsimple\ffmpeg\32_bit\0.8\ffmpeg -y -i C:/Data/video_test/HTTYD_1-021_poor.mov -ar 22050 -ac 2 -vcodec flv C:/Data/video_test/transcoded/" + outputFileName;
+		String command = ffmpegPath + " -y -i " + videoInputPath + " -ar 22050 -ac 2 -vcodec flv " + videoOutputPath;
 		
 		LOG.debug("buildCommand::built command::{}", command);
 		
