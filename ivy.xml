@@ -28,5 +28,6 @@
 		<dependency org="net.sourceforge.cobertura" name="cobertura" rev="1.9.4.1" conf="coverage->runtime(*),master(*)"/>
 		<dependency org="pixelsimple" name="commons-command-runner" rev="latest.integration" force="true" conf="default"/>
 		<dependency org="pixelsimple" name="app-core" rev="latest.integration" force="true" conf="default"/>
+		<dependency org="pixelsimple" name="commons-media-info" rev="latest.integration" force="true" conf="default"/>
 	</dependencies>
 </ivy-module>
