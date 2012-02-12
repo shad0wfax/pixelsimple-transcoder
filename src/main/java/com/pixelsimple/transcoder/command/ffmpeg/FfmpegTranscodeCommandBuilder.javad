@@ -1,0 +1,276 @@
+/**
+ * © PixelSimple 2011-2012.
+ */
+package com.pixelsimple.transcoder.command.ffmpeg;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pixelsimple.appcore.ApiConfig;
+import com.pixelsimple.appcore.RegistryService;
+import com.pixelsimple.appcore.media.Codec;
+import com.pixelsimple.appcore.media.MediaType;
+import com.pixelsimple.appcore.media.Profile;
+import com.pixelsimple.appcore.media.StreamType;
+import com.pixelsimple.commons.command.CommandRequest;
+import com.pixelsimple.commons.media.Container;
+import com.pixelsimple.commons.media.Stream;
+import com.pixelsimple.commons.util.OSUtils;
+import com.pixelsimple.commons.util.StringUtils;
+import com.pixelsimple.transcoder.TranscoderOutputSpec;
+import com.pixelsimple.transcoder.command.TranscodeCommandBuilder;
+
+/**
+ *
+ * @author Akshay Sharma
+ * Feb 7, 2012
+ */
+public class FfmpegTranscodeCommandBuilder implements TranscodeCommandBuilder {
+	static final Logger LOG = LoggerFactory.getLogger(FfmpegTranscodeCommandBuilder.class);
+	
+	/* (non-Javadoc)
+	 * @see com.pixelsimple.transcoder.command.TranscodeCommandBuilder#buildCommand(com.pixelsimple.commons.media.Container, com.pixelsimple.transcoder.TranscoderOutputSpec)
+	 */
+	public CommandRequest buildCommand(Container inputMedia, TranscoderOutputSpec spec) {
+		ApiConfig apiConfig = RegistryService.getRegisteredApiConfig();
+		String ffmpegPath = apiConfig.getFfmpegConfig().getExecutablePath(); 
+		CommandRequest request = new CommandRequest().addCommand(ffmpegPath, 0);
+		
+		// Keep it simple - gunning for this :-)
+		// ffmpeg -y -i input_file [output_file_options: like bitrate,codecs,format etc] output_file
+//		StringBuilder command = new StringBuilder(ffmpegPath + " -y -i ");
+		String videoInputPath = inputMedia.getFilePathWithName(); 
+		request.addArguments("-y -i").addArguments(videoInputPath);
+
+		Profile profile = spec.getTargetProfile();
+		
+		// Note: Having problems with ffmpeg sometimes when -f is container format name. Ex: wmv. Let it auto-detect/use fileFormat
+//		command.append(" -f " + profile.getContainerFormat());
+		if (isValidSetting(profile.getFileFormat())) {
+			request.addArguments("-f").addArguments(profile.getFileFormat());
+		}
+		
+		this.buildCodecsSetting(inputMedia, profile, request);
+		
+		if (isVideoTranscode(profile)) {
+			String dimension = this.computeVideoDimensions(inputMedia, profile);
+			request.addArguments("-s").addArguments(dimension);
+			
+			// If dimension has been set, ignore aspect ratio - else, set the aspect ratio
+			if (StringUtils.isNullOrEmpty(dimension)) {
+				if (isValidSetting(profile.getAspectRatio())) {
+					request.addArguments("-aspect").addArguments(profile.getAspectRatio());					
+				}
+			}
+		}
+		
+		if (isValidSetting(profile.getAdditionalParameters())) {
+			request.addArguments(profile.getAdditionalParameters());	
+		}
+		String outputFileNameWithoutExtension = spec.getOutputFileNameWithoutExtension();
+		outputFileNameWithoutExtension = outputFileNameWithoutExtension + "." + profile.getFileExtension();
+		String outputPath = spec.getOutputFilePath() + OSUtils.folderSeparator() + outputFileNameWithoutExtension;
+		request.addArguments(outputPath);
+		
+//		String command = "C:\dev\pixelsimple\ffmpeg\32_bit\0.8\ffmpeg -y -i C:/Data/video_test/HTTYD_1-021_poor.mov -ar 22050 -ac 2 -vcodec flv C:/Data/video_test/transcoded/" + outputFileName;
+//		String command = ffmpegPath + " -y -i " + videoInputPath + " -ar 22050 -ac 2 -vcodec flv " + videoOutputPath;
+		
+		LOG.debug("buildCommand::built command::{}", request.getCommandAsString());
+		return request;
+	}
+
+	private void buildCodecsSetting(Container inputMedia, Profile profile, CommandRequest request) {
+		// For video transcode
+		Codec acodec = null;
+		if (isVideoTranscode(profile)) {
+			Codec vcodec = this.pickBestMatchVideoCodec(inputMedia, profile);
+			if (isValidSetting(vcodec.getStrict())) {
+				request.addArguments("-strict").addArguments(vcodec.getStrict());
+			}
+			request.addArguments("-vcodec").addArguments(vcodec.getName());
+			
+			if(isValidSetting(profile.getVideoBitRate())) {
+				request.addArguments("-b").addArguments(profile.getVideoBitRate());
+			}
+
+			if (isValidSetting(profile.getFrameRateFPS())) {
+				request.addArguments("-r").addArguments(profile.getFrameRateFPS());
+			}
+			
+			acodec = this.pickBestMatchAudioCodecForVideoCodec(vcodec, inputMedia, profile);
+		} else if (isAudioTranscode(profile)) {
+			acodec = this.pickBestMatchAudioCodecForAudioOnlyTranscode(inputMedia, profile);
+		}
+		
+		//TODO: Can acodec be null?
+		if (acodec != null) {
+			if (isValidSetting(acodec.getStrict())) {
+				request.addArguments("-strict").addArguments(acodec.getStrict());
+			}
+			request.addArguments("-acodec").addArguments(acodec.getName());
+			
+			if (isValidSetting(profile.getAudioBitRate())) {
+				request.addArguments("-ab").addArguments(profile.getAudioBitRate());
+			}
+			
+			if (isValidSetting(profile.getAudioSampleRate())) {
+				request.addArguments("-ar").addArguments(profile.getAudioSampleRate());
+			}
+		}
+	}
+
+	private Codec pickBestMatchVideoCodec(Container inputMedia, Profile profile) {
+		// Algo: Profile has the list of video codecs that are to be used and is in preferred order (list).
+		// We will check to see if the source video codec matches any of the video codec, if so, we can just reuse (copy).
+		// If there is no match, then we pick the first video codec in the list as it was the preferred one.
+		Codec videoCodec = profile.getVideoCodecs().get(0);
+		
+		Stream sourceVideoStream = inputMedia.getStreams().get(StreamType.VIDEO);
+		String sourceCodecName = sourceVideoStream.getStreamAttribute(Stream.VIDEO_STREAM_ATTRIBUTES.codec_name);
+		
+		if (!StringUtils.isNullOrEmpty(sourceCodecName)) {
+			List<Codec> codecs =  profile.getVideoCodecs();
+			Codec sourceCodec = new Codec(Codec.CODEC_TYPE.VIDEO, sourceCodecName);
+			
+			Codec matchedCodec = findMatch(codecs, sourceCodec);
+			videoCodec = matchedCodec != null ? matchedCodec : videoCodec;
+		}
+		LOG.debug("pickBestMatchVideoCodec::picked the codec::{}", videoCodec);
+		
+		return videoCodec;
+	}
+	
+	//TODO: defensive ! - what if no audio codecs for a video codec? Right now it will be NPE/AIOBE all the way :-)
+	private Codec pickBestMatchAudioCodecForVideoCodec(Codec videoCodec, Container inputMedia, Profile profile) {
+		// Algo: Profile has the list of audio codecs associated for a video codec, again as a list (in order of preference).
+		// We will check to see if there is a match already with the source and if so use it (copy). If not, pick the 
+		// first for the video codec as that was the preffered order. 
+		Codec audioCodec = profile.getAssociatedAudioCodecs(videoCodec).get(0);		
+		
+		List<Codec> codecs =  profile.getAssociatedAudioCodecs(videoCodec);
+		Codec matchedCodec = matchAudioCodec(inputMedia, codecs);
+		audioCodec = matchedCodec != null ? matchedCodec : audioCodec;
+
+		LOG.debug("pickBestMatchAudioCodecForVideoCodec::picked the codec::{}", audioCodec);
+		return audioCodec;
+		
+	}
+
+	private Codec pickBestMatchAudioCodecForAudioOnlyTranscode(Container inputMedia, Profile profile) {
+		// Algo: Check if there is a match with the list of audio codecs listed for the profile, else pick first in list.
+		Codec audioCodec = profile.getAudioCodecs().get(0);
+		
+		List<Codec> codecs =  profile.getAudioCodecs();
+		Codec matchedCodec = matchAudioCodec(inputMedia, codecs);
+		audioCodec = matchedCodec != null ? matchedCodec : audioCodec;
+		
+		LOG.debug("pickBestMatchAudioCodecForAudioOnlyTranscode::picked the codec::{}", audioCodec);
+		return audioCodec;
+	}
+	
+
+	private Codec matchAudioCodec(Container inputMedia, List<Codec> codecs) {
+		Codec audioCodec = null;
+		Stream sourceAudioStream = inputMedia.getStreams().get(StreamType.AUDIO);
+		String sourceCodecName = sourceAudioStream.getStreamAttribute(Stream.AUDIO_STREAM_ATTRIBUTES.codec_name);
+		
+		if (!StringUtils.isNullOrEmpty(sourceCodecName)) {
+			
+			Codec sourceCodec = new Codec(Codec.CODEC_TYPE.AUDIO, sourceCodecName);
+			
+			audioCodec = findMatch(codecs, sourceCodec);
+		}
+		return audioCodec;
+	}
+	
+	private Codec findMatch(List<Codec> codecs, Codec sourceCodec) {
+		Codec matchedCodec = null;
+		for (int i = 0, size = codecs.size(); i < size; i++) {
+			Codec preferredVideoCodec = codecs.get(i);
+			
+			if (preferredVideoCodec.equals(sourceCodec)) {
+				matchedCodec = preferredVideoCodec;
+				break;
+			}
+		}
+		return matchedCodec;
+	}
+	
+	// Returns a WxH dimension [ex: 1024x720]
+	private String computeVideoDimensions(Container inputMedia, Profile profile) {
+		// Algo: If there is a maxwidth supplied, first we check the source to see what its width is. 
+		// If the source width is smaller than supplied maxwidth, we return null - this means the maxwidth will 
+		// be that of the source. 
+		// Suppose the source's width is greater than the maxwidth supplied, we will have to scale it down as 
+		// follows: If there is an aspect ratio supplied on the profile, we compute the height using that, 
+		// else we look at the source and see if we can get the aspect ratio and use it.
+		Stream sourceVideoStream = inputMedia.getStreams().get(StreamType.VIDEO);
+		String sourceWidthString = sourceVideoStream.getStreamAttribute(Stream.VIDEO_STREAM_ATTRIBUTES.width);
+		int sourceWidth = -1;
+
+		if (StringUtils.isNullOrEmpty(sourceWidthString)) {
+			// If we can't figure source width, don't constrain to maxwidth? - TODO: Verify what to do - Make it configuration?
+			return null;
+		}
+
+		// Should be handle NAN?
+		sourceWidth = Integer.parseInt(sourceWidthString.trim());
+		
+		if (isVideoTranscode(profile) && profile.getMaxWidth() > 0 && profile.getMaxWidth() < sourceWidth
+				&& sourceWidth != -1) {
+			String aspectRatioString = isValidSetting(profile.getAspectRatio()) ? profile.getAspectRatio() : null;
+			
+			// Pick from source
+			if (aspectRatioString == null) {
+				aspectRatioString = sourceVideoStream.getStreamAttribute(Stream.VIDEO_STREAM_ATTRIBUTES.display_aspect_ratio);
+				
+				if (StringUtils.isNullOrEmpty(aspectRatioString) || !aspectRatioString.matches("[0-9]+:[0-9]+")) {
+					aspectRatioString = null;
+					// Do a hard compute - can lead to errors! 
+					String sourceHeightString = sourceVideoStream.getStreamAttribute(Stream.VIDEO_STREAM_ATTRIBUTES.height);
+					int sourceHeight = -1;
+
+					if (!StringUtils.isNullOrEmpty(sourceHeightString)) {
+						// Should be handle NAN?
+						sourceHeight = Integer.parseInt(sourceWidthString.trim());
+						aspectRatioString = "" + sourceWidth + ":" + sourceHeight;
+					}
+				}
+			}
+			
+			if (StringUtils.isNullOrEmpty(aspectRatioString)) {
+				return null;
+			}
+			int num = Integer.valueOf(aspectRatioString.substring(aspectRatioString.indexOf(":") + 1, aspectRatioString.length()));
+			int den = Integer.valueOf(aspectRatioString.substring(0, aspectRatioString.indexOf(":")));
+			int maxHeight = (profile.getMaxWidth() * num ) / den;  
+			LOG.debug("computeVideoDimensions::computed maxHeight (note: even/odd)::{}",  maxHeight);
+			
+			// Even out the maxheight as ffmpeg will fail otherwise (odd width and height transcode fail). Reduce!
+			maxHeight = (maxHeight % 2) == 0 ? maxHeight : (maxHeight -1); 
+			
+			String dimension =  profile.getMaxWidth() + "x" + maxHeight;
+
+			LOG.debug("computeVideoDimensions::identified a new dimension to use::{}",  dimension);
+			return dimension;
+		}
+		return null;
+	}
+	
+	private boolean isValidSetting(String attribute) {
+		boolean invalid = StringUtils.isNullOrEmpty(attribute) 
+				|| attribute.trim().equalsIgnoreCase(Profile.SAME_AS_SOURCE_SETTING); 
+		
+		return !invalid;
+	}
+
+	private boolean isVideoTranscode(Profile profile) {
+		return (profile.getProfileType() == Profile.ProfileType.VIDEO);
+	}
+
+	private boolean isAudioTranscode(Profile profile) {
+		return (profile.getProfileType() == Profile.ProfileType.AUDIO);
+	}
+}

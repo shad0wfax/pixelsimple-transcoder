@@ -3,7 +3,7 @@
  */
 package com.pixelsimple.transcoder;
 
-import com.pixelsimple.appcore.media.Profile;
+import com.pixelsimple.transcoder.profile.Profile;
 
 /**
  *
@@ -12,11 +12,14 @@ import com.pixelsimple.appcore.media.Profile;
  */
 public class TranscoderOutputSpec {
 	private Profile targetProfile;
-	private String outputFileNameWithPath;
+	private String outputFilePath;
+	// Extension automatically gets decided.
+	private String outputFileNameWithoutExtension;
 	
-	public TranscoderOutputSpec(Profile targetProfile, String outputFileNameWithPath) {
+	public TranscoderOutputSpec(Profile targetProfile, String outputFilePath, String outputFileNameWithoutExtension) {
 		this.targetProfile = targetProfile;
-		this.outputFileNameWithPath = outputFileNameWithPath;
+		this.outputFilePath = outputFilePath;
+		this.outputFileNameWithoutExtension = outputFileNameWithoutExtension;
 	}
 	
 	/**
@@ -29,8 +32,15 @@ public class TranscoderOutputSpec {
 	/**
 	 * @return the outputFileNameWithPath
 	 */
-	public String getOutputFileNameWithPath() {
-		return outputFileNameWithPath;
+	public String getOutputFilePath() {
+		return outputFilePath;
+	}
+
+	/**
+	 * @return the outputFileNameWithoutExtension
+	 */
+	public String getOutputFileNameWithoutExtension() {
+		return outputFileNameWithoutExtension;
 	}
 
 }

@@ -13,5 +13,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/commons-command-runner"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/app-core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/commons-media-info"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/commons-util"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

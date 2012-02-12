@@ -26,6 +26,7 @@
 		<dependency org="org.apache.commons" name="commons-exec" rev="1.1" force="true" conf="runtime"/>
 		<dependency org="junit" name="junit" rev="4.10" force="true" conf="test->runtime(*),master(*)"/>
 		<dependency org="net.sourceforge.cobertura" name="cobertura" rev="1.9.4.1" conf="coverage->runtime(*),master(*)"/>
+		<dependency org="pixelsimple" name="commons-util" rev="latest.integration" force="true" conf="default"/>
 		<dependency org="pixelsimple" name="commons-command-runner" rev="latest.integration" force="true" conf="default"/>
 		<dependency org="pixelsimple" name="app-core" rev="latest.integration" force="true" conf="default"/>
 		<dependency org="pixelsimple" name="commons-media-info" rev="latest.integration" force="true" conf="default"/>

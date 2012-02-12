@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<media>
+	<profiles>
+
+<!-- Template here => 
+		<profile>
+			<id></id>
+			<!- -  Name is descriptive and can be used for display etc. - ->
+			<name></name>
+			<!- - Whether it is a 'video', 'audio' or 'photo' transcode - ->
+			<type></type>
+			<!- - Strictly one container per profile - ->
+			<container></container>
+			<!- -  A file extension to use. Only one name can be give (sometimes its possible to use more than one - ex: mov/mp4/m4v, but for simplicity just one can be chosen. - ->
+			<fileExtension></fileExtension>
+
+			<!- -  An optional attribute to be used if the transcoding library provider (ffmpeg) does not detect file format automatically and fails. Ffmpeg adds "-f fileFormat" - ->
+			<fileFormat></fileFormat>
+
+			<!- -  Pipe (|) separated, ordered (first has higher priority) list of words - ->
+			<videoCodec></videoCodec>
+
+			<!- -  Comma separated, ordered (first has higher priority) list of words corresponding to each videoCodec. Separate the audio codecs with pipe for each video codec. 
+			One video codec combination could have one or more audio codec. If the same audio codec is applicable for two video codecs, repeat them with a pipe (For clarity). - ->
+			<audioCodec></audioCodec>
+
+			<!- - Optional - Supply as Xk, where x is a number. Ex: 1200k. To be given if quality parameter is not supplied. This is preferred when we are using Constant Bit Rate (CBR)  - ->
+			<videoBitRate></videoBitRate>
+
+			<!- - Optional - Can be supplied if the videoBitRate is not supplied. This will guarantee a constant quality over VBR.
+				The values are currently those from the ffmpeg lib: 0(excellent quality) to 31(worst quality)  - ->
+			<vidoeQuality></vidoeQuality>
+
+			<audioBitRate></audioBitRate>
+			<!- - Override aspect ratio if needed using: X:Y format. Ex: 4:3 or 16:9 - ->
+			<aspectRatio></aspectRatio>
+			<!- - Optional - should be in pixels: ex: 1024. This will be used to compute the size for input as follows: height = maxWidth * aspect-ration. - ->
+			<maxWidth></maxWidth>
+			<!- -  optional, but can be kept as source. Expressed as 29.97 or 30000/1001 - ->
+			<frameRateFPS></frameRateFPS>
+			<!- -  Optional, but can be kept as source. Expressed as a number: 8000  44100 etc..- ->
+			<audioSampleRate></audioSampleRate>
+
+			<!- - Additional params that can be directly used with the transcoding provider (ffmpeg). 			
+			<additionalParameters></additionalParameters>
+
+			<!- - Our own/custom nomenclature that defines a set of criteria comma separated. This will help match the profile to a client input better. - ->
+			<criteria></criteria>
+			
+		</profile>	
+-->
+
+		<profile>
+			<id>apple_generic_standalone</id>
+			<name>Generic Apple Devices Profile</name>
+			<type>video</type>
+			<container>mp4</container>
+			<fileExtension>mp4</fileExtension>
+			<videoCodec>libx264</videoCodec>
+			<audioCodec>aac,ac3</audioCodec>
+			<videoBitRate>SAME_AS_SOURCE</videoBitRate>
+			<audioBitRate>SAME_AS_SOURCE</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>SAME_AS_SOURCE</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<!-- Unfortunately not yet supported by our version of ffmpeg - fix  
+			<additionalParameters> -moov_size 10 </additionalParameters>
+			-->
+			<additionalParameters></additionalParameters>
+			<criteria>apple,generic</criteria>
+		</profile>	
+
+		<profile>
+			<id>ipod_standalone</id>
+			<name>ipod</name>
+			<type>video</type>
+			<container>mp4</container>
+			<fileExtension>m4v</fileExtension>
+			<videoCodec>libx264|mpeg4</videoCodec>
+			<audioCodec>aac,ac3|aac,ac3,libmp3lame</audioCodec>
+			<videoBitRate>700k</videoBitRate>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>320</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>apple,ipod,small_screen,mobile</criteria>
+		</profile>	
+
+		<profile>
+			<id>iphone3_ipod_touch</id>
+			<name>iphone 3G, 3Gs and Ipod Touch devices</name>
+			<type>video</type>
+			<container>mp4</container>
+			<fileExtension>m4v</fileExtension>
+			<videoCodec>libx264|mpeg4</videoCodec>
+			<audioCodec>aac,ac3|aac,ac3,libmp3lame</audioCodec>
+			<videoBitRate>1200k</videoBitRate>
+			<audioBitRate>128k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>480</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>apple,iphone3g,ipod_touch,iphone,iphone3gs,small_screen,mobile</criteria>
+		</profile>	
+
+		<profile>
+			<id>iphone4</id>
+			<name>iphone 4 and 4S</name>
+			<type>video</type>
+			<container>mp4</container>
+			<fileExtension>m4v</fileExtension>
+			<videoCodec>libx264|mpeg4</videoCodec>
+			<audioCodec>aac,ac3|aac,ac3,libmp3lame</audioCodec>
+			<videoBitRate>1024k</videoBitRate>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>960</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>apple,iphone4,iphone4s,small_screen,mobile</criteria>
+		</profile>	
+
+		<profile>
+			<id>ipad</id>
+			<name>Ipad 1 and 2</name>
+			<type>video</type>
+			<container>mp4</container>
+			<fileExtension>m4v</fileExtension>
+			<videoCodec>libx264|mpeg4</videoCodec>
+			<audioCodec>aac,ac3|aac,ac3,libmp3lame</audioCodec>
+			<videoBitRate>1024k</videoBitRate>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>1024</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>apple,ipad</criteria>
+		</profile>	
+
+		<profile>
+			<id>smartphone</id>
+			<name>Smartphones that support multimedia. Not Iphone/Android. but the other ones.</name>
+			<type>video</type>
+			<container>3gp</container>
+			<fileExtension>3gp</fileExtension>
+			<videoCodec>h263</videoCodec>
+			<audioCodec>libopencore_amrnb</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>48k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth></maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<audioSampleRate>8000</audioSampleRate>
+			<!-- Direct ffmpeg param! For h263/3gp need to use mono channel, at 8000hz audio sample and size of 352x288 -->
+			<additionalParameters>-ac 1 -s 352x288</additionalParameters>
+			<criteria>smartphone,handheld,3gpp</criteria>
+		</profile>	
+
+		<profile>
+			<id>appletv1</id>
+			<name>Apple TV 1</name>
+			<type>video</type>
+			<container>mp4</container>
+			<fileExtension>m4v</fileExtension>
+			<videoCodec>libx264|mpeg4</videoCodec>
+			<audioCodec>aac,ac3|aac,ac3,libmp3lame</audioCodec>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>1024</maxWidth>
+			<frameRateFPS>24.97</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>apple,appletv</criteria>
+		</profile>	
+
+		<profile>
+			<id>appletv2</id>
+			<name>Apple TV 2</name>
+			<type>video</type>
+			<container>mp4</container>
+			<fileExtension>m4v</fileExtension>
+			<videoCodec>libx264|mpeg4</videoCodec>
+			<audioCodec>aac,ac3|aac,ac3,libmp3lame</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>1280</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>apple,appletv</criteria>
+		</profile>	
+
+		<!-- TODO: consider flv format? -->
+		<profile>
+			<id>IE_6_7_8_high_bandwidth</id>
+			<name>Internet Explorer 6, 7 and 8 on high bandwidth. Support only via Flash.</name>
+			<type>video</type>
+			<container>flv</container>
+			<fileExtension>flv</fileExtension>
+			<videoCodec>libx264|flv</videoCodec>
+			<audioCodec>aac,libmp3lame|libmp3lame,aac</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>2</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>SAME_AS_SOURCE</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>IE6,IE7,IE8,Desktop,PC,Windows</criteria>
+		</profile>	
+
+		<profile>
+			<id>IE_6_7_8_low_bandwidth</id>
+			<name>Internet Explorer 6, 7 and 8 on low bandwidth. Support only via Flash.</name>
+			<type>video</type>
+			<container>flv</container>
+			<fileExtension>flv</fileExtension>
+			<videoCodec>libx264</videoCodec>
+			<audioCodec>libmp3lame,aac</audioCodec>
+			<!--  override bitrate if needed in the coding algo -->
+			<videoBitRate>900k</videoBitRate>
+			<vidoeQuality></vidoeQuality>
+			<audioBitRate>96k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<!--  Can HD Stream? Reduce lower than 720p?-->
+			<maxWidth>SAME_AS_SOURCE</maxWidth>
+			<!--  Better to stream at a lower frame rate if the source is 30fps???-->
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<!--  experiment with gop settings and lower frame rates-->
+			<additionalParameters></additionalParameters>
+			<criteria>IE6,IE7,IE8,Desktop,PC,Windows</criteria>
+		</profile>	
+
+		<profile>
+			<id>IE_9_high_bandwidth</id>
+			<name>Internet Explorer 9 and above. Supports MP4</name>
+			<type>video</type>
+			<container>mp4</container>
+			<fileExtension>mp4</fileExtension>
+			<!-- Lets not add WebM as the user should have installed it for IE9. So just H.264 -->
+			<videoCodec>libx264</videoCodec>
+			<audioCodec>aac,libmp3lame</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>SAME_AS_SOURCE</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>IE9+,Desktop,PC,Windows,html5</criteria>
+		</profile>	
+
+		<profile>
+			<id>Firefox_4_high_bandwidth</id>
+			<name>Firefox 4 and above. Supports WebM and Ogg/Theora. WebM is preferred.</name>
+			<type>video</type>
+			<container>webm</container>
+			<fileExtension>webm</fileExtension>
+			<videoCodec>libvpx</videoCodec>
+			<audioCodec>libvorbis</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>SAME_AS_SOURCE</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>Firefor4+,Desktop,PC,Windows,Mac,html5</criteria>
+		</profile>	
+
+		<profile>
+			<id>Firefox_3_high_bandwidth</id>
+			<name>Firefox 3.x and lower. Supports WebM and Ogg and flash. Ogg is preferred.</name>
+			<type>video</type>
+			<container>ogg</container>
+			<fileExtension>ogg</fileExtension>
+			<videoCodec>libtheora</videoCodec>
+			<audioCodec>libvorbis</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>SAME_AS_SOURCE</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>Firefor3,Desktop,PC,Windows,Mac</criteria>
+		</profile>	
+
+		<profile>
+			<id>Chrome_6_high_bandwidth</id>
+			<name>Chrome 6 and above. Supports WebM, Mp4, and Ogg/Theora. WebM is preferred.</name>
+			<type>video</type>
+			<container>webm</container>
+			<fileExtension>webm</fileExtension>
+			<videoCodec>libvpx</videoCodec>
+			<audioCodec>libvorbis</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>SAME_AS_SOURCE</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>Chrome6,Desktop,PC,Windows,Mac,html5</criteria>
+		</profile>	
+
+		<profile>
+			<id>Chrome_5_high_bandwidth</id>
+			<name>Chrome 5 and below. Supports Mp4, and Ogg/Theora. Mp4 is preferred. If needed a profile can be created for ogg support.</name>
+			<type>video</type>
+			<container>mp4</container>
+			<fileExtension>mp4</fileExtension>
+			<videoCodec>libx264</videoCodec>
+			<audioCodec>aac,libmp3lame</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>SAME_AS_SOURCE</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>Chrome5,Desktop,PC,Windows,Mac,html5</criteria>
+		</profile>	
+
+		<profile>
+			<id>Safari_3_high_bandwidth</id>
+			<name>Safari 3 and below. Supports Mp4.</name>
+			<type>video</type>
+			<container>mp4</container>
+			<fileExtension>mp4</fileExtension>
+			<videoCodec>libx264</videoCodec>
+			<audioCodec>aac,ac3,libmp3lame</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>SAME_AS_SOURCE</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>Safari,Desktop,PC,Windows,Mac,html5</criteria>
+		</profile>	
+
+		<profile>
+			<id>Opera_10.5_high_bandwidth</id>
+			<name>Firefox 10.5 and lower. Supports Ogg.</name>
+			<type>video</type>
+			<container>ogg</container>
+			<fileExtension>ogg</fileExtension>
+			<videoCodec>libtheora</videoCodec>
+			<audioCodec>libvorbis</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>SAME_AS_SOURCE</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>Opera10.5,Desktop,PC,Windows,Mac</criteria>
+		</profile>	
+
+		<profile>
+			<id>Opera_10.6_high_bandwidth</id>
+			<name>Opera 10.6 and above. Supports WebM, and Ogg/Theora. WebM is preferred.</name>
+			<type>video</type>
+			<container>webm</container>
+			<fileExtension>webm</fileExtension>
+			<videoCodec>libvpx</videoCodec>
+			<audioCodec>libvorbis</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>SAME_AS_SOURCE</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>Opera10.6,Desktop,PC,Windows,Mac,html5</criteria>
+		</profile>	
+
+		<!-- For testing: -->
+
+		<profile>
+			<id>akshay_test1</id>
+			<name>Testing for akshay</name>
+			<type>video</type>
+			<container>avi</container>
+			<fileExtension>avi</fileExtension>
+			<videoCodec>msmpeg4</videoCodec>
+			<audioCodec>libmp3lame</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>480</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>windowsmedia,zune</criteria>
+		</profile>	
+
+		<profile>
+			<id>akshay_test2</id>
+			<name>Testing for akshay</name>
+			<type>video</type>
+			<container>divx</container>
+			<fileExtension>divx</fileExtension>
+			<fileFormat>avi</fileFormat>
+			<videoCodec>mpeg4</videoCodec>
+			<audioCodec>ac3</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>480</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>windowsmedia,zune</criteria>
+		</profile>	
+
+		<profile>
+			<id>akshay_test3</id>
+			<name>Testing for akshay</name>
+			<type>video</type>
+			<container>ogg</container>
+			<fileExtension>ogg</fileExtension>
+			<fileFormat>ogg</fileFormat>
+			<videoCodec>libtheora</videoCodec>
+			<audioCodec>flac</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>480</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>flac,ogg</criteria>
+		</profile>	
+
+		<profile>
+			<id>akshay_test4</id>
+			<name>Testing for akshay</name>
+			<type>video</type>
+			<container>mp4</container>
+			<fileExtension>mp4</fileExtension>
+			<videoCodec>mpeg2video</videoCodec>
+			<audioCodec>ac3</audioCodec>
+			<videoBitRate></videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>160k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>480</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>mpeg2,ac3</criteria>
+		</profile>	
+
+	</profiles>
+</media>
