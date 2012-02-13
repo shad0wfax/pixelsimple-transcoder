@@ -8,6 +8,10 @@ import com.pixelsimple.commons.media.Container;
 import com.pixelsimple.transcoder.TranscoderOutputSpec;
 
 /**
+ * All implementations have to be STATELESS - Will be cached. This is mandatory and an asbsolute requirement.
+ * Even the custom implementations have to be. 
+ * This means multiple threads could be calling different methods and nothing should be synchronized. 
+ * Methods should be sel-contained and not change the implementation's state/behavior.
  *
  * @author Akshay Sharma
  * Feb 11, 2012

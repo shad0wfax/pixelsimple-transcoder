@@ -455,5 +455,57 @@
 			<criteria>mpeg2,ac3</criteria>
 		</profile>	
 
+		<profile>
+			<id>audiotest1</id>
+			<name>Testing audio for akshay</name>
+			<type>audio</type>
+			<container>webm</container>
+			<fileExtension>webm</fileExtension>
+			<audioCodec>libvorbis</audioCodec>
+			<audioBitRate>48k</audioBitRate>
+			<criteria>webmaudio,chromeaudio</criteria>
+		</profile>	
+
+		<profile>
+			<id>audiotest2</id>
+			<name>Testing audio for akshay</name>
+			<type>audio</type>
+			<container>mp3</container>
+			<fileExtension>mp3</fileExtension>
+			<videoCodec>mpeg4</videoCodec>
+			<audioCodec>libmp3lame</audioCodec>
+			<videoBitRate>SAME_AS_SOURCE</videoBitRate>
+			<vidoeQuality>3</vidoeQuality>
+			<audioBitRate>256k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>480</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<additionalParameters></additionalParameters>
+			<criteria>mpeg4,mp3</criteria>
+		</profile>	
+
+		<profile>
+			<id>audiotest3</id>
+			<name>Testing audio for akshay</name>
+			<type>audio</type>
+			<container>ogg</container>
+			<fileExtension>oga</fileExtension>
+			<audioCodec>libvorbis</audioCodec>
+			<audioBitRate>96k</audioBitRate>
+			<criteria>webmaudio,firefoxaudio</criteria>
+		</profile>	
+
+		<profile>
+			<id>audiotest4</id>
+			<name>Testing audio for akshay</name>
+			<type>audio</type>
+			<container>m4a</container>
+			<fileExtension>m4a</fileExtension>
+			<audioCodec>aac,ac3</audioCodec>
+			<audioBitRate>128k</audioBitRate>
+			<criteria>ieaudio,safariaudio</criteria>
+		</profile>	
+
+
 	</profiles>
 </media>

@@ -366,8 +366,8 @@ public final class Profile {
 	}
 
 	@Override public String toString() {
-		return "\nid:" + this.getId() + "::Container:" + this.getContainerFormat() + "::Video Codecs supported:" + this.videoCodecs
-				+ "\t:: audio codecs supported:" + this.audioCodecs;  
+		return "\nid:" + this.getId() + "::Container:" + this.getContainerFormat() + "::ProfileType:" + this.getProfileType() 
+			+ "::Video Codecs supported:" + this.videoCodecs + "\t:: audio codecs supported:" + this.audioCodecs;  
 	}
 
 	/**

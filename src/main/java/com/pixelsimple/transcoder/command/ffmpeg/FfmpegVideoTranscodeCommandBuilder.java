@@ -33,12 +33,14 @@ public class FfmpegVideoTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 		if (profile.getProfileType() != Profile.ProfileType.VIDEO) {
 			
 			if (this.successor != null) {
+				LOG.debug("buildCommand::Cannot handle building the command, delegating to the successor for profile - {}",
+					profile);
 				return this.successor.buildCommand(inputMedia, spec);
 			} else {
-				LOG.debug("Could not find any successor to handle building the command for profile - {}", profile);
+				LOG.debug("buildCommand::Could not find any successor to handle building the command for profile - {}", 
+					profile);
 				return null;
 			}
-			
 		}
 			
 		CommandRequest request = new CommandRequest().addCommand(getFfmpegPath(), 0);
