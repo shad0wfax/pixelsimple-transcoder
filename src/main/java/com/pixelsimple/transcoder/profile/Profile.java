@@ -32,6 +32,7 @@ public final class Profile {
 	private String additionalParameters;
 	private String fileFormat;
 	private String audioSampleRate;
+	private String customProfileCommandHandler;
 
 	// Will have the order maintained. The position also determines the priority.
 	private List<VideoCodec> videoCodecs = new ArrayList<VideoCodec>();  
@@ -396,6 +397,20 @@ public final class Profile {
 	 */
 	protected void setAudioSampleRate(String audioSampleRate) {
 		this.audioSampleRate = audioSampleRate;
+	}
+
+	/**
+	 * @return the customProfileCommandHandler
+	 */
+	public String getCustomProfileCommandHandler() {
+		return customProfileCommandHandler;
+	}
+
+	/**
+	 * @param customProfileCommandHandler the customProfileCommandHandler to set
+	 */
+	protected void setCustomProfileCommandHandler(String customProfileCommandHandler) {
+		this.customProfileCommandHandler = customProfileCommandHandler;
 	}
 	
 }

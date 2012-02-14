@@ -62,6 +62,7 @@ public class ProfileBuilderTest {
 		Assert.assertNotNull(profile.getVideoCodecs().get(0).getName());
 		Assert.assertEquals(profile.getFileFormat(), "avi");
 		Assert.assertEquals(profile.getAudioSampleRate(), "8000");
+		Assert.assertEquals(profile.getCustomProfileCommandHandler(), "java.lang.String");
 		
 		node = validAudioXmlNode();
 		profile = ProfileBuilder.buildProfile(node);
@@ -222,7 +223,7 @@ public class ProfileBuilderTest {
 	}
 	
 	private Node validVideoXmlNode() {
-		String xml = "<profile><id>Opera_10.5_high_bandwidth</id><name>Firefox 10.5 and lower. Supports Ogg.</name><type>video</type><container>ogg</container><fileExtension>ogg</fileExtension><fileFormat>avi</fileFormat><videoCodec>libtheora</videoCodec><audioCodec>libvorbis</audioCodec><videoBitRate></videoBitRate><vidoeQuality>3</vidoeQuality><audioBitRate>160k</audioBitRate><audioSampleRate>8000</audioSampleRate><aspectRatio>SAME_AS_SOURCE</aspectRatio><maxWidth>SAME_AS_SOURCE</maxWidth><frameRateFPS>SAME_AS_SOURCE</frameRateFPS><optionalAdditionalParameters></optionalAdditionalParameters><criteria>Opera10.5,Desktop,PC,Windows,Mac</criteria></profile>";
+		String xml = "<profile><id>Opera_10.5_high_bandwidth</id><name>Firefox 10.5 and lower. Supports Ogg.</name><type>video</type><container>ogg</container><fileExtension>ogg</fileExtension><fileFormat>avi</fileFormat><videoCodec>libtheora</videoCodec><audioCodec>libvorbis</audioCodec><videoBitRate></videoBitRate><vidoeQuality>3</vidoeQuality><audioBitRate>160k</audioBitRate><audioSampleRate>8000</audioSampleRate><aspectRatio>SAME_AS_SOURCE</aspectRatio><maxWidth>SAME_AS_SOURCE</maxWidth><frameRateFPS>SAME_AS_SOURCE</frameRateFPS><optionalAdditionalParameters></optionalAdditionalParameters><criteria>Opera10.5,Desktop,PC,Windows,Mac</criteria><customProfileCommandHandler>java.lang.String</customProfileCommandHandler></profile>";
 		return asNode(xml);
 	}
 

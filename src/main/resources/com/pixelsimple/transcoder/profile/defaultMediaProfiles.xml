@@ -47,6 +47,10 @@
 			<!- - Our own/custom nomenclature that defines a set of criteria comma separated. This will help match the profile to a client input better. - ->
 			<criteria></criteria>
 			
+			<!- - An extension point to allow custom profile type. This is the handler to use for the custom profile tyoe. The handler builds the command. 
+				The string should be a full class that can be instantiated and implements the com.pixelsimple.transcoder.command.TranscodeCommandBuilder.	- ->
+			<customProfileCommandHandler></customProfileCommandHandler>
+			
 		</profile>	
 -->
 

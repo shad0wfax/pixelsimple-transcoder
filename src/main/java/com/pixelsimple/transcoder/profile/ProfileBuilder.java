@@ -106,6 +106,8 @@ public class ProfileBuilder {
 	    profile.setAspectRatio((String) xpath.evaluate("aspectRatio", xmlProfileNode, XPathConstants.STRING));
 	    profile.setFileFormat((String) xpath.evaluate("fileFormat", xmlProfileNode, XPathConstants.STRING));
 	    profile.setAudioSampleRate((String) xpath.evaluate("audioSampleRate", xmlProfileNode, XPathConstants.STRING));
+	    profile.setCustomProfileCommandHandler((String) xpath.evaluate("customProfileCommandHandler", xmlProfileNode, 
+	    		XPathConstants.STRING));
 	    
 	    Number maxWidth = (Number) xpath.evaluate("maxWidth", xmlProfileNode, XPathConstants.NUMBER);
 	    if (maxWidth != null) {

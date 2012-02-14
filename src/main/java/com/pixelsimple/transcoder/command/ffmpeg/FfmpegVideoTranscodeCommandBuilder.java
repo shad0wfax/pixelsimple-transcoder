@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pixelsimple.appcore.media.Codec;
+import com.pixelsimple.appcore.media.MediaType;
 import com.pixelsimple.appcore.media.StreamType;
 import com.pixelsimple.commons.command.CommandRequest;
 import com.pixelsimple.commons.media.Container;
@@ -30,7 +31,7 @@ public class FfmpegVideoTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 	public CommandRequest buildCommand(Container inputMedia, TranscoderOutputSpec spec) {
 		Profile profile = spec.getTargetProfile();
 		
-		if (profile.getProfileType() != Profile.ProfileType.VIDEO) {
+		if ((profile.getProfileType() != Profile.ProfileType.VIDEO) || (inputMedia.getMediaType() != MediaType.VIDEO)) {
 			
 			if (this.successor != null) {
 				LOG.debug("buildCommand::Cannot handle building the command, delegating to the successor for profile - {}",
