@@ -53,7 +53,7 @@ public class FfmpegAudioTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 		
 		this.buildCodecsSetting(inputMedia, profile, request);
 		this.buildAdditionalParamters(profile, request);		
-		request.addArguments(getOutputFileWithPath(spec));
+		request.addArguments(spec.getComputedOutputFileWithPath());
 		
 		LOG.debug("buildCommand::built command::{}", request.getCommandAsString());
 		return request;

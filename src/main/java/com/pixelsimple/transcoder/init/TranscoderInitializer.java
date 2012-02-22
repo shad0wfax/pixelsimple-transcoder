@@ -4,12 +4,18 @@
 package com.pixelsimple.transcoder.init;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.pixelsimple.appcore.Registrable;
 import com.pixelsimple.appcore.Registry;
 import com.pixelsimple.appcore.init.Initializable;
 import com.pixelsimple.commons.util.StringUtils;
+import com.pixelsimple.transcoder.Handle;
+import com.pixelsimple.transcoder.TranscodeStatus;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilder;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilderChain;
 import com.pixelsimple.transcoder.command.ffmpeg.FfmpegAudioTranscodeCommandBuilder;
@@ -24,6 +30,7 @@ import com.pixelsimple.transcoder.profile.ProfileBuilder;
  * Feb 12, 2012
  */
 public class TranscoderInitializer implements Initializable {
+	private static final Logger LOG = LoggerFactory.getLogger(TranscoderInitializer.class);
 
 	/* (non-Javadoc)
 	 * @see com.pixelsimple.appcore.init.Initializable#initialize(com.pixelsimple.appcore.Registry)
@@ -33,6 +40,8 @@ public class TranscoderInitializer implements Initializable {
 		Map<String, Profile> profiles = this.initMediaProfiles(registry);
 
 		this.initTranscodeCommandChain(registry, profiles);
+		
+		this.initTranscoderQueue(registry);
 	}
 
 	/* (non-Javadoc)
@@ -42,6 +51,7 @@ public class TranscoderInitializer implements Initializable {
 	public void deinitialize(Registry registry) throws Exception {
 		registry.remove(Registrable.MEDIA_PROFILES);
 		registry.remove(Registrable.TRANSCODE_COMMAND_CHAIN);
+		registry.remove(Registrable.TRANSCODER_QUEUE);
 	}
 
 	private Map<String, Profile> initMediaProfiles(Registry registry) throws Exception {
@@ -50,6 +60,7 @@ public class TranscoderInitializer implements Initializable {
 		// Load these objects up in registry
 		registry.register(Registrable.MEDIA_PROFILES, profiles);
 		
+		LOG.debug("initMediaProfiles registered profile");
 		return profiles;
 	}
 
@@ -77,8 +88,18 @@ public class TranscoderInitializer implements Initializable {
 					throw new TranscoderException("Cannot instantiate the class - " + customCommandHandler, e);					
 				}
 			}
-		}		
+		}
+		LOG.debug("initTranscodeCommandChain with chain - {}", chain);
 		registry.register(Registrable.TRANSCODE_COMMAND_CHAIN, chain);		
+	}
+
+	/**
+	 * @param registry
+	 */
+	private void initTranscoderQueue(Registry registry) {
+		Map<Handle, TranscodeStatus> transcoderQueue = new HashMap<Handle, TranscodeStatus>(8);
+		registry.register(Registrable.TRANSCODER_QUEUE, transcoderQueue);	
+		LOG.debug("initTranscoderQueue initing the Queue}");
 	}
 
 }

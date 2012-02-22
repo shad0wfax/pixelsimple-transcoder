@@ -71,7 +71,7 @@ public class FfmpegVideoTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 		}
 
 		this.buildAdditionalParamters(profile, request);
-		request.addArguments(getOutputFileWithPath(spec));
+		request.addArguments(spec.getComputedOutputFileWithPath());
 		
 		LOG.debug("buildCommand::built command::{}", request.getCommandAsString());
 		return request;

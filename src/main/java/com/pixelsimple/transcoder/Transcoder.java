@@ -28,9 +28,10 @@ public class Transcoder {
 	
 	public Transcoder() {
 		chain = (TranscodeCommandBuilderChain) RegistryService.getRegisteredEntry(Registrable.TRANSCODE_COMMAND_CHAIN);
+		LOG.debug("transcode()::Registered chain : {} ", chain);
 	}
 	
-	public void transcode(Container inputMedia, TranscoderOutputSpec spec) throws TranscoderException {
+	public Handle transcode(Container inputMedia, TranscoderOutputSpec spec) throws TranscoderException {
 		// TODO: validate spec?
 		if (spec == null) {
 			throw new TranscoderException("Pass a valid TranscoderOutputSpec in order to start a transcoding");
@@ -38,20 +39,28 @@ public class Transcoder {
 		LOG.debug("transcode::Transcoder with inputMedia::{} \nand spec::{}", inputMedia, 
 				spec.getOutputFilePath() + spec.getOutputFileNameWithoutExtension());
 		
+		// TODO: Evaluate what can be a better handle id?
+		Handle handle = new Handle(spec.getComputedOutputFileWithPath());
+		handle.setOutputFileCreated(spec.getComputedOutputFileWithPath());
+		
 		// TODO: validate spec?
 		CommandRequest commandRequest = this.buildCommand(inputMedia, spec);
 		
 		if (commandRequest == null) {
 			throw new TranscoderException("None of the builder in transcoder builder chain could create a builder. Verify profile");
 		}
-		
-		CommandRunner runner = CommandRunnerFactory.newAsyncCommandRunner(null);
+		CommandRunner runner = CommandRunnerFactory.newAsyncCommandRunner(new TranscoderCallbackHandler(handle));
 		runner.runCommand(commandRequest, new CommandResponse());
 		
-		LOG.debug("transcode::requested transcoding in async mode");
+		LOG.debug("transcode::requested transcoding in async mode. Handle returned - {}", handle);
+		return handle;
 	}
 
-	public CommandRequest buildCommand(Container inputMedia, TranscoderOutputSpec spec) {
+	public CommandRequest buildCommand(Container inputMedia, TranscoderOutputSpec spec) 
+			throws TranscoderException {
+		spec.validate();
+		
+		LOG.debug("transbuildCommandcode()::Going to use chain start : {} ", chain.getChainStart());
 		return this.chain.getChainStart().buildCommand(inputMedia, spec);
 	}
 }

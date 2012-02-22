@@ -15,7 +15,7 @@
   <!-- Import maven-build.xml into the current project                        -->
   <!-- ====================================================================== -->
 
-  <import file="${project.commonsBuildDir}/ant-jar-build.xml"/>
+  <import file="${project.commonsBuildDir}/ant-build.xml"/>
   
   <!-- ====================================================================== -->
   <!-- Help target                                                            -->

@@ -15,7 +15,6 @@ import com.pixelsimple.appcore.media.StreamType;
 import com.pixelsimple.commons.command.CommandRequest;
 import com.pixelsimple.commons.media.Container;
 import com.pixelsimple.commons.media.Stream;
-import com.pixelsimple.commons.util.OSUtils;
 import com.pixelsimple.commons.util.StringUtils;
 import com.pixelsimple.transcoder.TranscoderOutputSpec;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilder;
@@ -55,14 +54,6 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 	protected String getFfmpegPath() {
 		ApiConfig apiConfig = RegistryService.getRegisteredApiConfig();
 		return apiConfig.getFfmpegConfig().getExecutablePath(); 
-	}
-
-	protected String getOutputFileWithPath(TranscoderOutputSpec spec) {
-		Profile profile = spec.getTargetProfile();
-		String outputFileNameWithoutExtension = spec.getOutputFileNameWithoutExtension();
-		outputFileNameWithoutExtension = outputFileNameWithoutExtension + "." + profile.getFileExtension();
-		String outputPath = spec.getOutputFilePath() + OSUtils.folderSeparator() + outputFileNameWithoutExtension;
-		return outputPath;
 	}
 
 	protected Codec pickBestMatchVideoCodec(Container inputMedia, Profile profile) {

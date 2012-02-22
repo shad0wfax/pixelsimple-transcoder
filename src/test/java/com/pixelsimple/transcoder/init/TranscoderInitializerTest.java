@@ -12,6 +12,8 @@ import org.junit.Test;
 
 import com.pixelsimple.appcore.Registrable;
 import com.pixelsimple.appcore.registry.MapRegistry;
+import com.pixelsimple.transcoder.Handle;
+import com.pixelsimple.transcoder.TranscodeStatus;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilderChain;
 import com.pixelsimple.transcoder.profile.Profile;
 import com.pixelsimple.transcoder.util.TestAppInitializer;
@@ -41,9 +43,11 @@ public class TranscoderInitializerTest {
 			initializer.initialize(MapRegistry.INSTANCE);
 			Map<String, Profile> profiles = (Map<String, Profile>) MapRegistry.INSTANCE.fetch(Registrable.MEDIA_PROFILES);
 			TranscodeCommandBuilderChain chain = (TranscodeCommandBuilderChain) MapRegistry.INSTANCE.fetch(Registrable.TRANSCODE_COMMAND_CHAIN);
+			Map<Handle, TranscodeStatus> queue = (Map<Handle, TranscodeStatus>) MapRegistry.INSTANCE.fetch(Registrable.TRANSCODER_QUEUE);
 
 			Assert.assertNotNull(profiles);
 			Assert.assertNotNull(chain);
+			Assert.assertNotNull(queue);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

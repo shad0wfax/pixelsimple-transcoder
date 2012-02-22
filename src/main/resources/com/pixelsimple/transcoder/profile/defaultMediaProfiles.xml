@@ -242,8 +242,8 @@
 			<id>IE_9_high_bandwidth</id>
 			<name>Internet Explorer 9 and above. Supports MP4</name>
 			<type>video</type>
-			<container>mp4</container>
-			<fileExtension>mp4</fileExtension>
+			<container>m4v</container>
+			<fileExtension>m4v</fileExtension>
 			<!-- Lets not add WebM as the user should have installed it for IE9. So just H.264 -->
 			<videoCodec>libx264</videoCodec>
 			<audioCodec>aac,libmp3lame</audioCodec>
