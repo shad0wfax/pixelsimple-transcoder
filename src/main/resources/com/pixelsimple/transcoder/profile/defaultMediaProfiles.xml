@@ -460,8 +460,8 @@
 		</profile>	
 
 		<profile>
-			<id>audiotest1</id>
-			<name>Testing audio for akshay</name>
+			<id>Webm_Audio</id>
+			<name>Webm audio</name>
 			<type>audio</type>
 			<container>webm</container>
 			<fileExtension>webm</fileExtension>
