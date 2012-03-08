@@ -15,7 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Node;
 
-import com.pixelsimple.transcoder.util.TestAppInitializer;
+import com.pixelsimple.commons.test.appcore.init.TestAppInitializer;
 
 /**
  *

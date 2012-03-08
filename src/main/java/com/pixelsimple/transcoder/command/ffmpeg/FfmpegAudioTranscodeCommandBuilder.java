@@ -43,17 +43,17 @@ public class FfmpegAudioTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 		// Keep it simple - gunning for this :-)
 		// ffmpeg -y -i input_file [output_file_options: like bitrate,codecs,format etc] output_file
 		String videoInputPath = inputMedia.getFilePathWithName(); 
-		request.addArguments("-y").addArguments("-i").addArguments(videoInputPath);
+		request.addArgument("-y").addArgument("-i").addArgument(videoInputPath);
 
 		// Note: Having problems with ffmpeg sometimes when -f is container format name. Ex: wmv. Let it auto-detect/use fileFormat
 //		command.append(" -f " + profile.getContainerFormat());
 		if (isValidSetting(profile.getFileFormat())) {
-			request.addArguments("-f").addArguments(profile.getFileFormat());
+			request.addArgument("-f").addArgument(profile.getFileFormat());
 		}
 		
 		this.buildCodecsSetting(inputMedia, profile, request);
 		this.buildAdditionalParamters(profile, request);		
-		request.addArguments(spec.getComputedOutputFileWithPath());
+		request.addArgument(spec.getComputedOutputFileWithPath());
 		
 		LOG.debug("buildCommand::built command::{}", request.getCommandAsString());
 		return request;
@@ -65,16 +65,16 @@ public class FfmpegAudioTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 		//TODO: Throw Exception?
 		if (acodec != null) {
 			if (isValidSetting(acodec.getStrict())) {
-				request.addArguments("-strict").addArguments(acodec.getStrict());
+				request.addArgument("-strict").addArgument(acodec.getStrict());
 			}
-			request.addArguments("-acodec").addArguments(acodec.getName());
+			request.addArgument("-acodec").addArgument(acodec.getName());
 			
 			if (isValidSetting(profile.getAudioBitRate())) {
-				request.addArguments("-ab").addArguments(profile.getAudioBitRate());
+				request.addArgument("-ab").addArgument(profile.getAudioBitRate());
 			}
 			
 			if (isValidSetting(profile.getAudioSampleRate())) {
-				request.addArguments("-ar").addArguments(profile.getAudioSampleRate());
+				request.addArgument("-ar").addArgument(profile.getAudioSampleRate());
 			}
 		}
 	}

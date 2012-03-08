@@ -12,11 +12,11 @@ import org.junit.Test;
 
 import com.pixelsimple.appcore.Registrable;
 import com.pixelsimple.appcore.registry.MapRegistry;
+import com.pixelsimple.commons.test.appcore.init.TestAppInitializer;
 import com.pixelsimple.transcoder.Handle;
 import com.pixelsimple.transcoder.TranscodeStatus;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilderChain;
 import com.pixelsimple.transcoder.profile.Profile;
-import com.pixelsimple.transcoder.util.TestAppInitializer;
 
 /**
  *

@@ -49,12 +49,12 @@ public class FfmpegVideoTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 		// Keep it simple - gunning for this :-)
 		// ffmpeg -y -i input_file [output_file_options: like bitrate,codecs,format etc] output_file
 		String videoInputPath = inputMedia.getFilePathWithName(); 
-		request.addArguments("-y").addArguments("-i").addArguments(videoInputPath);
+		request.addArgument("-y").addArgument("-i").addArgument(videoInputPath);
 
 		// Note: Having problems with ffmpeg sometimes when -f is container format name. Ex: wmv. Let it auto-detect/use fileFormat
 //		command.append(" -f " + profile.getContainerFormat());
 		if (isValidSetting(profile.getFileFormat())) {
-			request.addArguments("-f").addArguments(profile.getFileFormat());
+			request.addArgument("-f").addArgument(profile.getFileFormat());
 		}
 		
 		this.buildCodecsSetting(inputMedia, profile, request);
@@ -62,16 +62,16 @@ public class FfmpegVideoTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 		String dimension = this.computeVideoDimensions(inputMedia, profile);
 		
 		if (!StringUtils.isNullOrEmpty(dimension)) {
-			request.addArguments("-s").addArguments(dimension);
+			request.addArgument("-s").addArgument(dimension);
 		} else {
 			// If dimension has been set, ignore aspect ratio - else, set the aspect ratio
 			if (isValidSetting(profile.getAspectRatio())) {
-				request.addArguments("-aspect").addArguments(profile.getAspectRatio());					
+				request.addArgument("-aspect").addArgument(profile.getAspectRatio());					
 			}
 		}
 
 		this.buildAdditionalParamters(profile, request);
-		request.addArguments(spec.getComputedOutputFileWithPath());
+		request.addArgument(spec.getComputedOutputFileWithPath());
 		
 		LOG.debug("buildCommand::built command::{}", request.getCommandAsString());
 		return request;
@@ -80,16 +80,16 @@ public class FfmpegVideoTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 	private void buildCodecsSetting(Container inputMedia, Profile profile, CommandRequest request) {
 		Codec vcodec = this.pickBestMatchVideoCodec(inputMedia, profile);
 		if (isValidSetting(vcodec.getStrict())) {
-			request.addArguments("-strict").addArguments(vcodec.getStrict());
+			request.addArgument("-strict").addArgument(vcodec.getStrict());
 		}
-		request.addArguments("-vcodec").addArguments(vcodec.getName());
+		request.addArgument("-vcodec").addArgument(vcodec.getName());
 		
 		if(isValidSetting(profile.getVideoBitRate())) {
-			request.addArguments("-b").addArguments(profile.getVideoBitRate());
+			request.addArgument("-b").addArgument(profile.getVideoBitRate());
 		}
 
 		if (isValidSetting(profile.getFrameRateFPS())) {
-			request.addArguments("-r").addArguments(profile.getFrameRateFPS());
+			request.addArgument("-r").addArgument(profile.getFrameRateFPS());
 		}
 		
 		Codec acodec = this.pickBestMatchAudioCodecForVideoCodec(vcodec, inputMedia, profile);
@@ -97,16 +97,16 @@ public class FfmpegVideoTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 		//TODO: Can acodec be null?
 		if (acodec != null) {
 			if (isValidSetting(acodec.getStrict())) {
-				request.addArguments("-strict").addArguments(acodec.getStrict());
+				request.addArgument("-strict").addArgument(acodec.getStrict());
 			}
-			request.addArguments("-acodec").addArguments(acodec.getName());
+			request.addArgument("-acodec").addArgument(acodec.getName());
 			
 			if (isValidSetting(profile.getAudioBitRate())) {
-				request.addArguments("-ab").addArguments(profile.getAudioBitRate());
+				request.addArgument("-ab").addArgument(profile.getAudioBitRate());
 			}
 			
 			if (isValidSetting(profile.getAudioSampleRate())) {
-				request.addArguments("-ar").addArguments(profile.getAudioSampleRate());
+				request.addArgument("-ar").addArgument(profile.getAudioSampleRate());
 			}
 		}
 	}

@@ -14,5 +14,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/app-core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/commons-media-info"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/commons-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/commons-test"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

@@ -30,5 +30,6 @@
 		<dependency org="pixelsimple" name="commons-command-runner" rev="latest.integration" force="true" conf="default"/>
 		<dependency org="pixelsimple" name="app-core" rev="latest.integration" force="true" conf="default"/>
 		<dependency org="pixelsimple" name="commons-media-info" rev="latest.integration" force="true" conf="default"/>
+		<dependency org="pixelsimple" name="commons-test" rev="latest.integration" conf="test->runtime(*),master(*)"/>
 	</dependencies>
 </ivy-module>

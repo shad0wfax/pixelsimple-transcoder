@@ -141,7 +141,7 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 			String [] parameters = additionalParam.split("\\s");
 			
 			for (String param : parameters) {
-				request.addArguments(param);	
+				request.addArgument(param);	
 			}
 		}
 	}
