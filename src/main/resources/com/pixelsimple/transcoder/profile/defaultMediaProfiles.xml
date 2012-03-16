@@ -158,7 +158,7 @@
 			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
 			<audioSampleRate>8000</audioSampleRate>
 			<!-- Direct ffmpeg param! For h263/3gp need to use mono channel, at 8000hz audio sample and size of 352x288 -->
-			<additionalParameters>-ac 1 -s 352x288</additionalParameters>
+			<additionalParameters>-s 352x288</additionalParameters>
 			<criteria>smartphone,handheld,3gpp</criteria>
 		</profile>	
 
@@ -209,6 +209,8 @@
 			<videoBitRate></videoBitRate>
 			<vidoeQuality>2</vidoeQuality>
 			<audioBitRate>160k</audioBitRate>
+			<!--  FLV can only support 44.1 kHz, 22.05 kHz and 11.025 kHz -->
+			<audioSampleRate>44100</audioSampleRate>
 			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
 			<maxWidth>SAME_AS_SOURCE</maxWidth>
 			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
@@ -228,6 +230,8 @@
 			<videoBitRate>900k</videoBitRate>
 			<vidoeQuality></vidoeQuality>
 			<audioBitRate>96k</audioBitRate>
+			<!--  FLV can only support 44.1 kHz, 22.05 kHz and 11.025 kHz -->
+			<audioSampleRate>44100</audioSampleRate>
 			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
 			<!--  Can HD Stream? Reduce lower than 720p?-->
 			<maxWidth>SAME_AS_SOURCE</maxWidth>
@@ -383,10 +387,22 @@
 			<criteria>Opera10.6,Desktop,PC,Windows,Mac,html5</criteria>
 		</profile>	
 
+		<profile>
+			<id>Webm_Audio</id>
+			<name>Webm audio</name>
+			<type>audio</type>
+			<container>webm</container>
+			<fileExtension>webm</fileExtension>
+			<audioCodec>libvorbis</audioCodec>
+			<audioBitRate>48k</audioBitRate>
+			<criteria>webmaudio,chromeaudio</criteria>
+		</profile>	
+
+
 		<!-- For testing: -->
 
 		<profile>
-			<id>akshay_test1</id>
+			<id>test_avi_msmpeg4_libmp3lame</id>
 			<name>Testing for akshay</name>
 			<type>video</type>
 			<container>avi</container>
@@ -404,7 +420,7 @@
 		</profile>	
 
 		<profile>
-			<id>akshay_test2</id>
+			<id>test_divx_mpeg4_ac3</id>
 			<name>Testing for akshay</name>
 			<type>video</type>
 			<container>divx</container>
@@ -423,7 +439,7 @@
 		</profile>	
 
 		<profile>
-			<id>akshay_test3</id>
+			<id>test_ogg_theora_flac</id>
 			<name>Testing for akshay</name>
 			<type>video</type>
 			<container>ogg</container>
@@ -442,7 +458,7 @@
 		</profile>	
 
 		<profile>
-			<id>akshay_test4</id>
+			<id>test_mp4_mpeg2video_ac3</id>
 			<name>Testing for akshay</name>
 			<type>video</type>
 			<container>mp4</container>
@@ -460,18 +476,20 @@
 		</profile>	
 
 		<profile>
-			<id>Webm_Audio</id>
-			<name>Webm audio</name>
-			<type>audio</type>
-			<container>webm</container>
-			<fileExtension>webm</fileExtension>
-			<audioCodec>libvorbis</audioCodec>
-			<audioBitRate>48k</audioBitRate>
-			<criteria>webmaudio,chromeaudio</criteria>
+			<id>test_wma_wmv2_wmav2</id>
+			<name>Testing audio for akshay</name>
+			<type>video</type>
+			<container>wma</container>
+			<fileExtension>wma</fileExtension>
+			<videoCodec>wmv2</videoCodec>
+			<audioCodec>wmav2</audioCodec>
+			<audioBitRate>128k</audioBitRate>
+			<criteria>winmedia</criteria>
 		</profile>	
 
+
 		<profile>
-			<id>audiotest2</id>
+			<id>test_mp3_libmp3lame</id>
 			<name>Testing audio for akshay</name>
 			<type>audio</type>
 			<container>mp3</container>
@@ -489,10 +507,11 @@
 		</profile>	
 
 		<profile>
-			<id>audiotest3</id>
+			<id>test_ogg_libvorbis</id>
 			<name>Testing audio for akshay</name>
 			<type>audio</type>
 			<container>ogg</container>
+			<fileFormat>ogg</fileFormat>
 			<fileExtension>oga</fileExtension>
 			<audioCodec>libvorbis</audioCodec>
 			<audioBitRate>96k</audioBitRate>
@@ -500,7 +519,7 @@
 		</profile>	
 
 		<profile>
-			<id>audiotest4</id>
+			<id>test_m4a_aac/ac3</id>
 			<name>Testing audio for akshay</name>
 			<type>audio</type>
 			<container>m4a</container>
@@ -508,6 +527,40 @@
 			<audioCodec>aac,ac3</audioCodec>
 			<audioBitRate>128k</audioBitRate>
 			<criteria>ieaudio,safariaudio</criteria>
+		</profile>	
+
+		<profile>
+			<id>test_wma_wmav2</id>
+			<name>Testing audio for akshay</name>
+			<type>audio</type>
+			<container>wma</container>
+			<fileExtension>wma</fileExtension>
+			<audioCodec>wmav2</audioCodec>
+			<audioBitRate>128k</audioBitRate>
+			<criteria>ieaudio</criteria>
+		</profile>	
+
+		<!--  not working -->
+		<profile>
+			<id>test_avi_pcm_s16be</id>
+			<name>Testing audio for akshay</name>
+			<type>audio</type>
+			<container>avi</container>
+			<fileExtension>avi</fileExtension>
+			<audioCodec>pcm_s16be</audioCodec>
+			<audioBitRate>128k</audioBitRate>
+			<criteria>avi</criteria>
+		</profile>	
+
+		<profile>
+			<id>test_avi_pcm_s16le</id>
+			<name>Testing audio for akshay</name>
+			<type>audio</type>
+			<container>wav</container>
+			<fileExtension>wav</fileExtension>
+			<audioCodec>pcm_s16le</audioCodec>
+			<audioBitRate>128k</audioBitRate>
+			<criteria>wav</criteria>
 		</profile>	
 
 

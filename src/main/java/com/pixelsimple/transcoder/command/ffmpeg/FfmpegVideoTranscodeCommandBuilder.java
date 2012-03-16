@@ -6,9 +6,10 @@ package com.pixelsimple.transcoder.command.ffmpeg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pixelsimple.appcore.media.Codec;
+import com.pixelsimple.appcore.media.AudioCodec;
 import com.pixelsimple.appcore.media.MediaType;
 import com.pixelsimple.appcore.media.StreamType;
+import com.pixelsimple.appcore.media.VideoCodec;
 import com.pixelsimple.commons.command.CommandRequest;
 import com.pixelsimple.commons.media.Container;
 import com.pixelsimple.commons.media.Stream;
@@ -57,7 +58,8 @@ public class FfmpegVideoTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 			request.addArgument("-f").addArgument(profile.getFileFormat());
 		}
 		
-		this.buildCodecsSetting(inputMedia, profile, request);
+		VideoCodec vcodec = this.buildVideoCodecsSetting(inputMedia, profile, request);
+		AudioCodec acodec = this.buildAudioCodecSetting(inputMedia, profile, request, vcodec);
 		
 		String dimension = this.computeVideoDimensions(inputMedia, profile);
 		
@@ -71,14 +73,16 @@ public class FfmpegVideoTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 		}
 
 		this.buildAdditionalParamters(profile, request);
+		this.addChannelRestriction(inputMedia, acodec, request);
+
 		request.addArgument(spec.getComputedOutputFileWithPath());
 		
 		LOG.debug("buildCommand::built command::{}", request.getCommandAsString());
 		return request;
 	}
 
-	private void buildCodecsSetting(Container inputMedia, Profile profile, CommandRequest request) {
-		Codec vcodec = this.pickBestMatchVideoCodec(inputMedia, profile);
+	private VideoCodec buildVideoCodecsSetting(Container inputMedia, Profile profile, CommandRequest request) {
+		VideoCodec vcodec = this.pickBestMatchVideoCodec(inputMedia, profile);
 		if (isValidSetting(vcodec.getStrict())) {
 			request.addArgument("-strict").addArgument(vcodec.getStrict());
 		}
@@ -91,8 +95,12 @@ public class FfmpegVideoTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 		if (isValidSetting(profile.getFrameRateFPS())) {
 			request.addArgument("-r").addArgument(profile.getFrameRateFPS());
 		}
-		
-		Codec acodec = this.pickBestMatchAudioCodecForVideoCodec(vcodec, inputMedia, profile);
+		return vcodec;
+	}
+
+	private AudioCodec buildAudioCodecSetting(Container inputMedia, Profile profile, CommandRequest request, 
+			VideoCodec vcodec) {
+		AudioCodec acodec = this.pickBestMatchAudioCodecForVideoCodec(vcodec, inputMedia, profile);
 		
 		//TODO: Can acodec be null?
 		if (acodec != null) {
@@ -109,6 +117,7 @@ public class FfmpegVideoTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 				request.addArgument("-ar").addArgument(profile.getAudioSampleRate());
 			}
 		}
+		return acodec;
 	}
 	
 	// Returns a WxH dimension [ex: 1024x720]

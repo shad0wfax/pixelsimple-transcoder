@@ -10,8 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import com.pixelsimple.appcore.ApiConfig;
 import com.pixelsimple.appcore.RegistryService;
-import com.pixelsimple.appcore.media.Codec;
+import com.pixelsimple.appcore.media.AudioCodec;
 import com.pixelsimple.appcore.media.StreamType;
+import com.pixelsimple.appcore.media.VideoCodec;
 import com.pixelsimple.commons.command.CommandRequest;
 import com.pixelsimple.commons.media.Container;
 import com.pixelsimple.commons.media.Stream;
@@ -56,20 +57,20 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 		return apiConfig.getFfmpegConfig().getExecutablePath(); 
 	}
 
-	protected Codec pickBestMatchVideoCodec(Container inputMedia, Profile profile) {
+	protected VideoCodec pickBestMatchVideoCodec(Container inputMedia, Profile profile) {
 		// Algo: Profile has the list of video codecs that are to be used and is in preferred order (list).
 		// We will check to see if the source video codec matches any of the video codec, if so, we can just reuse (copy).
 		// If there is no match, then we pick the first video codec in the list as it was the preferred one.
-		Codec videoCodec = profile.getVideoCodecs().get(0);
+		VideoCodec videoCodec = profile.getVideoCodecs().get(0);
 		
 		Stream sourceVideoStream = inputMedia.getStreams().get(StreamType.VIDEO);
 		String sourceCodecName = sourceVideoStream.getStreamAttribute(Stream.VIDEO_STREAM_ATTRIBUTES.codec_name);
 		
 		if (!StringUtils.isNullOrEmpty(sourceCodecName)) {
-			List<Codec> codecs =  profile.getVideoCodecs();
-			Codec sourceCodec = new Codec(Codec.CODEC_TYPE.VIDEO, sourceCodecName);
+			List<VideoCodec> codecs =  profile.getVideoCodecs();
+			VideoCodec sourceCodec = new VideoCodec(sourceCodecName);
 			
-			Codec matchedCodec = findMatch(codecs, sourceCodec);
+			VideoCodec matchedCodec = this.findMatch(codecs, sourceCodec);
 			videoCodec = matchedCodec != null ? matchedCodec : videoCodec;
 		}
 		LOG.debug("pickBestMatchVideoCodec::picked the codec::{}", videoCodec);
@@ -78,14 +79,14 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 	}
 	
 	//TODO: defensive ! - what if no audio codecs for a video codec? Right now it will be NPE/AIOBE all the way :-)
-	protected Codec pickBestMatchAudioCodecForVideoCodec(Codec videoCodec, Container inputMedia, Profile profile) {
+	protected AudioCodec pickBestMatchAudioCodecForVideoCodec(VideoCodec videoCodec, Container inputMedia, Profile profile) {
 		// Algo: Profile has the list of audio codecs associated for a video codec, again as a list (in order of preference).
 		// We will check to see if there is a match already with the source and if so use it (copy). If not, pick the 
 		// first for the video codec as that was the preffered order. 
-		Codec audioCodec = profile.getAssociatedAudioCodecs(videoCodec).get(0);		
+		AudioCodec audioCodec = profile.getAssociatedAudioCodecs(videoCodec).get(0);		
 		
-		List<Codec> codecs =  profile.getAssociatedAudioCodecs(videoCodec);
-		Codec matchedCodec = matchAudioCodec(inputMedia, codecs);
+		List<AudioCodec> codecs =  profile.getAssociatedAudioCodecs(videoCodec);
+		AudioCodec matchedCodec = matchAudioCodec(inputMedia, codecs);
 		audioCodec = matchedCodec != null ? matchedCodec : audioCodec;
 
 		LOG.debug("pickBestMatchAudioCodecForVideoCodec::picked the codec::{}", audioCodec);
@@ -93,12 +94,12 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 		
 	}
 
-	protected Codec pickBestMatchAudioCodecForAudioOnlyTranscode(Container inputMedia, Profile profile) {
+	protected AudioCodec pickBestMatchAudioCodecForAudioOnlyTranscode(Container inputMedia, Profile profile) {
 		// Algo: Check if there is a match with the list of audio codecs listed for the profile, else pick first in list.
-		Codec audioCodec = profile.getAudioCodecs().get(0);
+		AudioCodec audioCodec = profile.getAudioCodecs().get(0);
 		
-		List<Codec> codecs =  profile.getAudioCodecs();
-		Codec matchedCodec = matchAudioCodec(inputMedia, codecs);
+		List<AudioCodec> codecs =  profile.getAudioCodecs();
+		AudioCodec matchedCodec = matchAudioCodec(inputMedia, codecs);
 		audioCodec = matchedCodec != null ? matchedCodec : audioCodec;
 		
 		LOG.debug("pickBestMatchAudioCodecForAudioOnlyTranscode::picked the codec::{}", audioCodec);
@@ -106,24 +107,36 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 	}
 	
 
-	protected Codec matchAudioCodec(Container inputMedia, List<Codec> codecs) {
-		Codec audioCodec = null;
+	protected AudioCodec matchAudioCodec(Container inputMedia, List<AudioCodec> codecs) {
+		AudioCodec audioCodec = null;
 		Stream sourceAudioStream = inputMedia.getStreams().get(StreamType.AUDIO);
 		String sourceCodecName = sourceAudioStream.getStreamAttribute(Stream.AUDIO_STREAM_ATTRIBUTES.codec_name);
 		
 		if (!StringUtils.isNullOrEmpty(sourceCodecName)) {
-			
-			Codec sourceCodec = new Codec(Codec.CODEC_TYPE.AUDIO, sourceCodecName);
+			AudioCodec sourceCodec = new AudioCodec(sourceCodecName);
 			
 			audioCodec = findMatch(codecs, sourceCodec);
 		}
 		return audioCodec;
 	}
 	
-	protected Codec findMatch(List<Codec> codecs, Codec sourceCodec) {
-		Codec matchedCodec = null;
+	protected VideoCodec findMatch(List<VideoCodec> codecs, VideoCodec sourceCodec) {
+		VideoCodec matchedCodec = null;
 		for (int i = 0, size = codecs.size(); i < size; i++) {
-			Codec preferredVideoCodec = codecs.get(i);
+			VideoCodec preferredVideoCodec = codecs.get(i);
+			
+			if (preferredVideoCodec.equals(sourceCodec)) {
+				matchedCodec = preferredVideoCodec;
+				break;
+			}
+		}
+		return matchedCodec;
+	}
+
+	protected AudioCodec findMatch(List<AudioCodec> codecs, AudioCodec sourceCodec) {
+		AudioCodec matchedCodec = null;
+		for (int i = 0, size = codecs.size(); i < size; i++) {
+			AudioCodec preferredVideoCodec = codecs.get(i);
 			
 			if (preferredVideoCodec.equals(sourceCodec)) {
 				matchedCodec = preferredVideoCodec;
@@ -135,8 +148,9 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 
 	protected void buildAdditionalParamters(Profile profile, CommandRequest request) {
 		
+		// Additional parameters might have space, so get it as string array to set
+		// This is to ensure that if, a parameter is to be overriden it can be done individually here. 
 		if (isValidSetting(profile.getAdditionalParameters())) {
-			// Additional parameters might have space, so get it as string array to set
 			String additionalParam = profile.getAdditionalParameters().trim();
 			String [] parameters = additionalParam.split("\\s");
 			
@@ -145,5 +159,39 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 			}
 		}
 	}
+	
+	protected void addChannelRestriction(Container inputMedia, AudioCodec acodec, CommandRequest request) {
+		int limit = acodec.getMaxChannels();
+		
+		// first check if there are any codec based channel restriction:
+		if (limit == AudioCodec.NO_SPECIFIED_CHANNEL_LIMIT)
+			return;
+		
+		// Check if "-ac" (audio channel count param of ffmpeg) is already added (could be form additional param override)
+		if (request.doesArgumentExist("-ac", false))
+			return;
+		
+		Stream audio = inputMedia.getStreams().get(StreamType.AUDIO);
+		
+		if (audio == null)
+			return;
+		
+		String channelStr = audio.getStreamAttribute(Stream.AUDIO_STREAM_ATTRIBUTES.channels);
+		
+		if (StringUtils.isNullOrEmpty(channelStr))
+			return;
+		
+		try {
+			float channels = Float.parseFloat(channelStr);
+			
+			if (limit < channels) {
+				request.addArgument("-ac").addArgument("" + limit);
+			}
+			LOG.debug("addChannelRestriction:: limiting the number of channels to {}", limit);
+		} catch (Exception e) {
+			// NAN - ignore move on.
+		}
+	}
+
 	
 }

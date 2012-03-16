@@ -8,7 +8,9 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.pixelsimple.appcore.media.Codec;
+import com.pixelsimple.appcore.media.AudioCodec;
+import com.pixelsimple.appcore.media.VideoCodec;
+import com.pixelsimple.transcoder.profile.Profile.ProfileType;
 
 /**
  *
@@ -35,33 +37,46 @@ public class ProfileTest {
 	}
 	
 	@Test
-	public void invalidProfileOperations() {
+	public void validProfileOperations() {
 		Profile profile = createValidVideoProfile();
 		
+		profile.addVideoCodec(new VideoCodec("msmpeg"));
+		profile.addAssociatedAudioCodec(new VideoCodec("msmpeg"), new AudioCodec("vorbis"));
+		
+		Assert.assertEquals(profile.getAudioCodecs().size(), 2);
+		Assert.assertEquals(profile.getVideoCodecs().size(), 2);
+	}
+	
+	@Test
+	public void invalidProfileOperations() {
+		
 		try {
-			profile.addAudioOnlyCodec(new Codec(Codec.CODEC_TYPE.VIDEO, "aac"));
+			Profile profile = createValidVideoProfile();
+			profile.addAssociatedAudioCodec(new VideoCodec("doesntexist"), new AudioCodec("flv"));
+			Assert.fail();
+		} catch (IllegalStateException e) {
+			// Ok
+		}
+		
+		try {
+			Profile profile = new Profile(ProfileType.AUDIO);
+			profile.addAssociatedAudioCodec(new VideoCodec("wmv2"), new AudioCodec("flv"));
 			Assert.fail();
 		} catch (IllegalStateException e) {
 			// Ok
 		}
 
 		try {
-			profile.addAssociatedAudioCodec(new Codec(Codec.CODEC_TYPE.VIDEO, "doesntexist"), new Codec(Codec.CODEC_TYPE.AUDIO, "flv"));
+			Profile profile = new Profile(ProfileType.AUDIO);
+			profile.addVideoCodec(new VideoCodec("libx264"));
 			Assert.fail();
 		} catch (IllegalStateException e) {
 			// Ok
 		}
 
 		try {
-			profile.getAssociatedAudioCodecs(new Codec(Codec.CODEC_TYPE.AUDIO, "aac"));
-			Assert.fail();
-		} catch (IllegalStateException e) {
-			// Ok
-		}
-
-		try {
-			Profile newProfile = new Profile(Profile.ProfileType.AUDIO);
-			newProfile.addVideoCodec(new Codec(Codec.CODEC_TYPE.AUDIO, "flv"));
+			Profile profile = new Profile(ProfileType.VIDEO);
+			profile.addAudioOnlyCodec(new AudioCodec("libmp3lame"));
 			Assert.fail();
 		} catch (IllegalStateException e) {
 			// Ok
@@ -85,8 +100,8 @@ public class ProfileTest {
 	    profile.setAdditionalParameters(" -moov_size 10 ");
    		profile.addCriteria("testing");
 	    
-   		Codec vCodec = new Codec(Codec.CODEC_TYPE.VIDEO, "libx264");
-   		Codec aCodec = new Codec(Codec.CODEC_TYPE.AUDIO, "libmp3lame");
+   		VideoCodec vCodec =  new VideoCodec("libx264"); // Codec.create(Codec.CODEC_TYPE.VIDEO , "libx264");
+   		AudioCodec aCodec = new AudioCodec("libmp3lame"); // Codec.create(Codec.CODEC_TYPE.AUDIO , "libmp3lame");
    		profile.addVideoCodec(vCodec);
    		profile.addAssociatedAudioCodec(vCodec, aCodec);
 

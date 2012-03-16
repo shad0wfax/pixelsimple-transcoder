@@ -21,10 +21,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.pixelsimple.appcore.RegistryService;
+import com.pixelsimple.appcore.media.AudioCodec;
 import com.pixelsimple.appcore.media.Codec;
 import com.pixelsimple.appcore.media.Codecs;
 import com.pixelsimple.appcore.media.ContainerFormats;
 import com.pixelsimple.appcore.media.MediaInfoParserFactory;
+import com.pixelsimple.appcore.media.VideoCodec;
 import com.pixelsimple.commons.util.StringUtils;
 
 /**
@@ -151,7 +153,7 @@ public class ProfileBuilder {
 	    	// Note: Order is important - it indicates priority/preference
 	    	String [] codecsString = StringUtils.commaDelimitedListToStringArray(audioCodec);
 	    	for (String acodec : codecsString) {
-	    		Codec audioCodecSupported = supportedCodecs.findCodec(Codec.CODEC_TYPE.AUDIO, acodec);
+	    		AudioCodec audioCodecSupported = (AudioCodec) supportedCodecs.findCodec(Codec.CODEC_TYPE.AUDIO, acodec);
 	    		
 	    		if (audioCodecSupported == null)
 					throw new ProfileBuilderException("Looks like the audio codec - " + acodec + " is not supported");			
@@ -171,7 +173,7 @@ public class ProfileBuilder {
 	    	}
 	    	for (int i = 0; i < vcodecs.length; i++) {
 	    		String vcodec = vcodecs[i];
-	    		Codec videoCodecSupported = supportedCodecs.findCodec(Codec.CODEC_TYPE.VIDEO, vcodec);
+	    		VideoCodec videoCodecSupported = (VideoCodec) supportedCodecs.findCodec(Codec.CODEC_TYPE.VIDEO, vcodec);
 
 	    		if (videoCodecSupported == null)
 					throw new ProfileBuilderException("Looks like the video codec - " + vcodec + " is not supported");			
@@ -181,7 +183,7 @@ public class ProfileBuilder {
 	    		if (acodecs != null && acodecs.length > i) {
 	    			String [] acodecForVid = StringUtils.commaDelimitedListToStringArray(acodecs[i]);
 	    	    	for (String acodec : acodecForVid) {
-	    	    		Codec audioCodecSupported = supportedCodecs.findCodec(Codec.CODEC_TYPE.AUDIO, acodec);
+	    	    		AudioCodec audioCodecSupported = (AudioCodec) supportedCodecs.findCodec(Codec.CODEC_TYPE.AUDIO, acodec);
 	    	    		
 	    	    		if (audioCodecSupported == null)
 	    					throw new ProfileBuilderException("Looks like the audio codec - " + acodec + " is not supported");			

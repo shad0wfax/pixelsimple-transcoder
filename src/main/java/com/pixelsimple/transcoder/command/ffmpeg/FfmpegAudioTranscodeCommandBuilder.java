@@ -6,7 +6,7 @@ package com.pixelsimple.transcoder.command.ffmpeg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pixelsimple.appcore.media.Codec;
+import com.pixelsimple.appcore.media.AudioCodec;
 import com.pixelsimple.commons.command.CommandRequest;
 import com.pixelsimple.commons.media.Container;
 import com.pixelsimple.transcoder.TranscoderOutputSpec;
@@ -51,16 +51,17 @@ public class FfmpegAudioTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 			request.addArgument("-f").addArgument(profile.getFileFormat());
 		}
 		
-		this.buildCodecsSetting(inputMedia, profile, request);
-		this.buildAdditionalParamters(profile, request);		
+		AudioCodec acodec = this.buildCodecsSetting(inputMedia, profile, request);
+		this.buildAdditionalParamters(profile, request);
+		this.addChannelRestriction(inputMedia, acodec, request);
 		request.addArgument(spec.getComputedOutputFileWithPath());
 		
 		LOG.debug("buildCommand::built command::{}", request.getCommandAsString());
 		return request;
 	}
 
-	private void buildCodecsSetting(Container inputMedia, Profile profile, CommandRequest request) {
-		Codec acodec = this.pickBestMatchAudioCodecForAudioOnlyTranscode(inputMedia, profile);
+	private AudioCodec buildCodecsSetting(Container inputMedia, Profile profile, CommandRequest request) {
+		AudioCodec acodec = this.pickBestMatchAudioCodecForAudioOnlyTranscode(inputMedia, profile);
 		
 		//TODO: Throw Exception?
 		if (acodec != null) {
@@ -77,6 +78,7 @@ public class FfmpegAudioTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 				request.addArgument("-ar").addArgument(profile.getAudioSampleRate());
 			}
 		}
+		return acodec;
 	}
 
 }

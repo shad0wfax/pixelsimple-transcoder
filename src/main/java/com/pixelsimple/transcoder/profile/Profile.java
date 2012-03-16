@@ -6,7 +6,8 @@ package com.pixelsimple.transcoder.profile;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pixelsimple.appcore.media.Codec;
+import com.pixelsimple.appcore.media.AudioCodec;
+import com.pixelsimple.appcore.media.VideoCodec;
 
 /**
  *
@@ -35,10 +36,10 @@ public final class Profile {
 	private String customProfileCommandHandler;
 
 	// Will have the order maintained. The position also determines the priority.
-	private List<VideoCodec> videoCodecs = new ArrayList<VideoCodec>();  
-	private List<AudioCodec> audioCodecs = new ArrayList<AudioCodec>();  
-	private List<Codec> videoCodecsComputed = new ArrayList<Codec>();
-	private List<Codec> audioCodecsComputed = new ArrayList<Codec>();
+	private List<ProfileVideoCodec> profileVideoCodecs = new ArrayList<ProfileVideoCodec>();  
+	private List<ProfileAudioCodec> profileAudioCodecs = new ArrayList<ProfileAudioCodec>();  
+	private List<VideoCodec> videoCodecsComputed = new ArrayList<VideoCodec>();
+	private List<AudioCodec> audioCodecsComputed = new ArrayList<AudioCodec>();
 
 	public Profile(ProfileType type) {
 		this.profileType = type;
@@ -52,17 +53,17 @@ public final class Profile {
 	 * @author Akshay Sharma
 	 * Feb 7, 2012
 	 */
-	private class VideoCodec {
-		private Codec videoCodec;
+	private class ProfileVideoCodec {
+		private VideoCodec videoCodec;
 		// Order is important!
-		private List<Codec> associatedAudioCodecs = new ArrayList<Codec>();
+		private List<AudioCodec> associatedAudioCodecs = new ArrayList<AudioCodec>();
 		
-		public VideoCodec(Codec videoCodec) {
+		public ProfileVideoCodec(VideoCodec videoCodec) {
 			this.videoCodec = videoCodec;
 			videoCodecsComputed.add(videoCodec);
 		}
 		
-		public VideoCodec addAudioCodec(Codec audioCodec) {
+		public ProfileVideoCodec addAudioCodec(AudioCodec audioCodec) {
 			this.associatedAudioCodecs.add(audioCodec);
 			audioCodecsComputed.add(audioCodec);
 			return this;
@@ -71,14 +72,14 @@ public final class Profile {
 		/**
 		 * @return the videoCodec
 		 */
-		public Codec getVideoCodec() {
+		public VideoCodec getVideoCodec() {
 			return videoCodec;
 		}
 
 		/**
 		 * @return the associatedAudioCodecs
 		 */
-		public List<Codec> getAssociatedAudioCodecs() {
+		public List<AudioCodec> getAssociatedAudioCodecs() {
 			return associatedAudioCodecs;
 		}
 		
@@ -93,10 +94,10 @@ public final class Profile {
 	 * @author Akshay Sharma
 	 * Feb 7, 2012
 	 */
-	private class AudioCodec {
-		private Codec audioCodec;
+	private class ProfileAudioCodec {
+		private AudioCodec audioCodec;
 		
-		public AudioCodec(Codec audioCodec) {
+		public ProfileAudioCodec(AudioCodec audioCodec) {
 			this.audioCodec = audioCodec;
 			audioCodecsComputed.add(audioCodec);
 		}
@@ -169,29 +170,32 @@ public final class Profile {
 		this.fileExtension = fileExtension;
 	}
 
-	protected Profile addAudioOnlyCodec(Codec codec) {
+	protected Profile addAudioOnlyCodec(AudioCodec codec) {
 		if (this.profileType != ProfileType.AUDIO)
 			throw new IllegalStateException("An audio only codec can be added only if the media is of profileType Audio. " +
 				"Use adding Audio through an associated video codec if the media is of profileType video");
 		
-		AudioCodec audioCodec = new AudioCodec(codec);
-		this.audioCodecs.add(audioCodec);
+		ProfileAudioCodec profileAudioCodec = new ProfileAudioCodec(codec);
+		this.profileAudioCodecs.add(profileAudioCodec);
 		return this;
 	}
 	
-	protected Profile addVideoCodec(Codec codec) {
+	protected Profile addVideoCodec(VideoCodec codec) {
 		if (this.profileType != ProfileType.VIDEO)
 			throw new IllegalStateException("A video only codec can be added only if the media is of profileType Video. " +
 				"Use adding Audio with addAudioOnlyCodec() for media profileType Audio.");
 
-		VideoCodec videoCodec = new VideoCodec(codec);		
-		this.videoCodecs.add(videoCodec);
+		ProfileVideoCodec profileVideoCodec = new ProfileVideoCodec(codec);		
+		this.profileVideoCodecs.add(profileVideoCodec);
 		return this;
 	}
 	
-	protected Profile addAssociatedAudioCodec(Codec videoCodec, Codec audioCodec) {
-		VideoCodec vidCodec = null;
-		for (VideoCodec vcodec : this.videoCodecs) {
+	protected Profile addAssociatedAudioCodec(VideoCodec videoCodec, AudioCodec audioCodec) {
+		if (this.profileType != ProfileType.VIDEO)
+			throw new IllegalStateException("An associated audio codec be added only if the media is of profileType Video");
+
+		ProfileVideoCodec vidCodec = null;
+		for (ProfileVideoCodec vcodec : this.profileVideoCodecs) {
 			
 			if (vcodec.getVideoCodec().equals(videoCodec)) {
 				vidCodec = vcodec;
@@ -209,21 +213,21 @@ public final class Profile {
 		return this;
 	}
 	
-	public List<Codec> getVideoCodecs() {
+	public List<VideoCodec> getVideoCodecs() {
 		return this.videoCodecsComputed;
 	}
 	
-	public List<Codec> getAudioCodecs() {
+	public List<AudioCodec> getAudioCodecs() {
 		return this.audioCodecsComputed;
 	}
 	
-	public List<Codec> getAssociatedAudioCodecs(Codec videoCodec) {
+	public List<AudioCodec> getAssociatedAudioCodecs(VideoCodec videoCodec) {
 		
-		if (videoCodec.getCodecType() != Codec.CODEC_TYPE.VIDEO)
-			throw new IllegalStateException("Only a video codec can have an associated list of Audio codecs for a profile");
+//		if (videoCodec.getCodecType() != Codec.CODEC_TYPE.VIDEO)
+//			throw new IllegalStateException("Only a video codec can have an associated list of Audio codecs for a profile");
 		
-		List<Codec> associatedCodecs = null;
-		for (VideoCodec vcodec : this.videoCodecs) {
+		List<AudioCodec> associatedCodecs = null;
+		for (ProfileVideoCodec vcodec : this.profileVideoCodecs) {
 			
 			if (vcodec.getVideoCodec().equals(videoCodec)) {
 				associatedCodecs = vcodec.getAssociatedAudioCodecs();
@@ -368,7 +372,7 @@ public final class Profile {
 
 	@Override public String toString() {
 		return "\nid:" + this.getId() + "::Container:" + this.getContainerFormat() + "::ProfileType:" + this.getProfileType() 
-			+ "::Video Codecs supported:" + this.videoCodecs + "\t:: audio codecs supported:" + this.audioCodecs;  
+			+ "::Video Codecs supported:" + this.profileVideoCodecs + "\t:: audio codecs supported:" + this.profileAudioCodecs;  
 	}
 
 	/**
