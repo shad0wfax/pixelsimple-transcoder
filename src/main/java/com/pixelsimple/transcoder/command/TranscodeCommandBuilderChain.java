@@ -21,6 +21,14 @@ public class TranscodeCommandBuilderChain {
 	}
 	
 	public TranscodeCommandBuilderChain addNextSuccessor(TranscodeCommandBuilder successor) {
+		// Ensure that its not already present in the chain first
+		for (TranscodeCommandBuilder chainElements : chain) {
+			if (chainElements.getClass().getName().equalsIgnoreCase(successor.getClass().getName())) {
+				// Break and don't do anything.
+				return this;
+			}
+		}
+		
 		TranscodeCommandBuilder lastInChain = this.chain.get(chain.size() - 1);
 		lastInChain.setSuccessor(successor);
 		// Add it in the chain list as well. 

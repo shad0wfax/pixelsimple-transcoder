@@ -19,7 +19,7 @@ import com.pixelsimple.transcoder.queue.TranscoderQueue;
 public class TranscoderCallbackHandler implements AsyncCallbackHandler {
 	private static final Logger LOG = LoggerFactory.getLogger(TranscoderCallbackHandler.class);
 	
-	private Handle handle;
+	protected Handle handle;
 	
 	public TranscoderCallbackHandler(Handle handle) {
 		this.handle = handle;
@@ -33,7 +33,7 @@ public class TranscoderCallbackHandler implements AsyncCallbackHandler {
 		LOG.debug("Starting the command, enqueing - {} the handle :{}", commandRequest.getCommandAsString(), this.handle);
 		TranscodeStatus status = new TranscodeStatus(commandRequest, commandResponse);
 		status.start();
-		TranscoderQueue.enqueue(handle, status);
+		TranscoderQueue.enqueue(this.handle, status);
 	}
 
 	/* (non-Javadoc)
@@ -43,11 +43,11 @@ public class TranscoderCallbackHandler implements AsyncCallbackHandler {
 	public void onCommandComplete(CommandRequest commandRequest, CommandResponse commandResponse) {
 		LOG.debug("Completed running the command, dequeing - {} \n the output of the command \n:{}", 
 			commandRequest.getCommandAsString(), commandResponse);
-		TranscodeStatus status = TranscoderQueue.peek(handle);
+		TranscodeStatus status = TranscoderQueue.peek(this.handle);
 		
 		if (status != null) {
 			status.completed();
-			TranscoderQueue.dequeue(handle);
+			TranscoderQueue.dequeue(this.handle);
 		}
 	}
 
@@ -60,11 +60,11 @@ public class TranscoderCallbackHandler implements AsyncCallbackHandler {
 				commandResponse);
 		LOG.debug("Failure cause:\n {}", commandResponse.getFailureCause());
 
-		TranscodeStatus status = TranscoderQueue.peek(handle);
+		TranscodeStatus status = TranscoderQueue.peek(this.handle);
 		
 		if (status != null) {
 			status.failed();
-			TranscoderQueue.dequeue(handle);
+			TranscoderQueue.dequeue(this.handle);
 		}
 	}
 

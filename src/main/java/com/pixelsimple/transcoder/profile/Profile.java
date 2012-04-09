@@ -34,6 +34,7 @@ public final class Profile {
 	private String fileFormat;
 	private String audioSampleRate;
 	private String customProfileCommandHandler;
+	private boolean hlsProfile;
 
 	// Will have the order maintained. The position also determines the priority.
 	private List<ProfileVideoCodec> profileVideoCodecs = new ArrayList<ProfileVideoCodec>();  
@@ -416,5 +417,15 @@ public final class Profile {
 	protected void setCustomProfileCommandHandler(String customProfileCommandHandler) {
 		this.customProfileCommandHandler = customProfileCommandHandler;
 	}
+
+	/**
+	 * @param parseBoolean
+	 */
+	public void setHlsProfile(boolean hlsProfile) {
+		this.hlsProfile = hlsProfile;
+	}
 	
+	public boolean isHlsProfile() {
+		return this.hlsProfile;
+	}
 }

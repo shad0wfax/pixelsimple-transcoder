@@ -63,11 +63,13 @@ public class ProfileBuilderTest {
 		Assert.assertEquals(profile.getFileFormat(), "avi");
 		Assert.assertEquals(profile.getAudioSampleRate(), "8000");
 		Assert.assertEquals(profile.getCustomProfileCommandHandler(), "java.lang.String");
+		Assert.assertEquals(profile.isHlsProfile(), true);
 		
 		node = validAudioXmlNode();
 		profile = ProfileBuilder.buildProfile(node);
 		Assert.assertEquals(profile.getAudioCodecs().get(0).getName(), "libvorbis");
 		Assert.assertEquals(profile.getVideoCodecs().size(), 0);
+		Assert.assertEquals(profile.isHlsProfile(), false);
 		
 		node = validVideoXmlNodeWithCData();
 		profile = ProfileBuilder.buildProfile(node);
@@ -223,7 +225,7 @@ public class ProfileBuilderTest {
 	}
 	
 	private Node validVideoXmlNode() {
-		String xml = "<profile><id>Opera_10.5_high_bandwidth</id><name>Firefox 10.5 and lower. Supports Ogg.</name><type>video</type><container>ogg</container><fileExtension>ogg</fileExtension><fileFormat>avi</fileFormat><videoCodec>libtheora</videoCodec><audioCodec>libvorbis</audioCodec><videoBitRate></videoBitRate><vidoeQuality>3</vidoeQuality><audioBitRate>160k</audioBitRate><audioSampleRate>8000</audioSampleRate><aspectRatio>SAME_AS_SOURCE</aspectRatio><maxWidth>SAME_AS_SOURCE</maxWidth><frameRateFPS>SAME_AS_SOURCE</frameRateFPS><optionalAdditionalParameters></optionalAdditionalParameters><criteria>Opera10.5,Desktop,PC,Windows,Mac</criteria><customProfileCommandHandler>java.lang.String</customProfileCommandHandler></profile>";
+		String xml = "<profile><id>Opera_10.5_high_bandwidth</id><name>Firefox 10.5 and lower. Supports Ogg.</name><type>video</type><container>ogg</container><fileExtension>ogg</fileExtension><fileFormat>avi</fileFormat><videoCodec>libtheora</videoCodec><audioCodec>libvorbis</audioCodec><videoBitRate></videoBitRate><vidoeQuality>3</vidoeQuality><audioBitRate>160k</audioBitRate><audioSampleRate>8000</audioSampleRate><aspectRatio>SAME_AS_SOURCE</aspectRatio><maxWidth>SAME_AS_SOURCE</maxWidth><frameRateFPS>SAME_AS_SOURCE</frameRateFPS><optionalAdditionalParameters></optionalAdditionalParameters><criteria>Opera10.5,Desktop,PC,Windows,Mac</criteria><customProfileCommandHandler>java.lang.String</customProfileCommandHandler><hls>true</hls></profile>";
 		return asNode(xml);
 	}
 

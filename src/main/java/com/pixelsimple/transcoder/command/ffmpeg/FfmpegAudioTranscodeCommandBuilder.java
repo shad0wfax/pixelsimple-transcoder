@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.pixelsimple.appcore.media.AudioCodec;
 import com.pixelsimple.commons.command.CommandRequest;
 import com.pixelsimple.commons.media.Container;
+import com.pixelsimple.commons.util.StringUtils;
 import com.pixelsimple.transcoder.TranscoderOutputSpec;
 import com.pixelsimple.transcoder.profile.Profile;
 
@@ -27,8 +28,10 @@ public class FfmpegAudioTranscodeCommandBuilder extends AbstractFfmpegTranscodeC
 	@Override
 	public CommandRequest buildCommand(Container inputMedia, TranscoderOutputSpec spec) {
 		Profile profile = spec.getTargetProfile();
+		String customProfileCommandHandler = profile.getCustomProfileCommandHandler();
 		
-		if (profile.getProfileType() != Profile.ProfileType.AUDIO) {
+		if ((!StringUtils.isNullOrEmpty(customProfileCommandHandler) && !this.getClass().getName().equals(customProfileCommandHandler))
+				|| (profile.getProfileType() != Profile.ProfileType.AUDIO)) {
 			
 			if (this.successor != null) {
 				return this.successor.buildCommand(inputMedia, spec);

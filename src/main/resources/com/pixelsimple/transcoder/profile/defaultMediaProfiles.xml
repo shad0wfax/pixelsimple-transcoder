@@ -47,6 +47,9 @@
 			<!- - Our own/custom nomenclature that defines a set of criteria comma separated. This will help match the profile to a client input better. - ->
 			<criteria></criteria>
 			
+			<!- - Optional tag to indicate a profile is for hls. Set to true if hls profile. - ->
+			<hls>true/false</hls>
+			
 			<!- - An extension point to allow custom profile type. This is the handler to use for the custom profile tyoe. The handler builds the command. 
 				The string should be a full class that can be instantiated and implements the com.pixelsimple.transcoder.command.TranscodeCommandBuilder.	- ->
 			<customProfileCommandHandler></customProfileCommandHandler>
@@ -388,6 +391,54 @@
 		</profile>	
 
 		<profile>
+			<id>Http_Live_Streaming_Mpeg2</id>
+			<name>Apple's HLS with Mpeg2 video and Mp3.</name>
+			<type>video</type>
+			<!--  this will be the container name/file extension of the segments -->
+			<container>ts</container>
+			<!--  this will be the playlist/index name -->
+			<fileExtension>m3u8</fileExtension>
+			<!--  this will be the type of format used - Segment (-f segment)  -->
+			<fileFormat>segment</fileFormat>
+			<videoCodec>mpeg2video</videoCodec>
+			<audioCodec>libmp3lame</audioCodec>
+			<videoBitRate></videoBitRate>
+			<audioBitRate>96k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>SAME_AS_SOURCE</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<!-- Wont support subtitles in .ts stream for now (issues in ffmpeg) -->
+			<additionalParameters>-sn</additionalParameters>
+			<criteria>apple,ios,hls</criteria>
+			<hls>true</hls>
+			<customProfileCommandHandler>com.pixelsimple.transcoder.command.ffmpeg.FfmpegHLSTranscodeCommandBuilder</customProfileCommandHandler>
+		</profile>	
+
+		<profile>
+			<id>Http_Live_Streaming_H264</id>
+			<name>Apple's HLS with H264 video and AAC.</name>
+			<type>video</type>
+			<!--  this will be the container name/file extension of the segments -->
+			<container>ts</container>
+			<!--  this will be the playlist/index name -->
+			<fileExtension>m3u8</fileExtension>
+			<!--  this will be the type of format used - Segment (-f segment)  -->
+			<fileFormat>segment</fileFormat>
+			<videoCodec>libx264</videoCodec>
+			<audioCodec>aac</audioCodec>
+			<videoBitRate></videoBitRate>
+			<audioBitRate>96k</audioBitRate>
+			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
+			<maxWidth>SAME_AS_SOURCE</maxWidth>
+			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
+			<!-- Wont support subtitles in .ts stream for now (issues in ffmpeg). Also hack on ffmpeg for h264_mp4toannexb, might not be needed in later versions of ffmpeg -->
+			<additionalParameters>-sn -vbsf h264_mp4toannexb -flags -global_header</additionalParameters>
+			<criteria>apple,ios,hls</criteria>
+			<hls>true</hls>
+			<customProfileCommandHandler>com.pixelsimple.transcoder.command.ffmpeg.FfmpegHLSTranscodeCommandBuilder</customProfileCommandHandler>
+		</profile>	
+
+		<profile>
 			<id>Webm_Audio</id>
 			<name>Webm audio</name>
 			<type>audio</type>
@@ -458,20 +509,20 @@
 		</profile>	
 
 		<profile>
-			<id>test_mp4_mpeg2video_ac3</id>
-			<name>Testing for akshay</name>
+			<id>test_mp4_mpeg2video_mp3_ntsc_vcd</id>
+			<name>NTSC VCD setting</name>
 			<type>video</type>
 			<container>mp4</container>
 			<fileExtension>mp4</fileExtension>
 			<videoCodec>mpeg2video</videoCodec>
-			<audioCodec>ac3</audioCodec>
+			<audioCodec>libmp3lame</audioCodec>
 			<videoBitRate></videoBitRate>
 			<vidoeQuality>3</vidoeQuality>
-			<audioBitRate>160k</audioBitRate>
+			<audioBitRate>92k</audioBitRate>
 			<aspectRatio>SAME_AS_SOURCE</aspectRatio>
 			<maxWidth>480</maxWidth>
 			<frameRateFPS>SAME_AS_SOURCE</frameRateFPS>
-			<additionalParameters></additionalParameters>
+			<additionalParameters>-target ntsc-vcd</additionalParameters>
 			<criteria>mpeg2,ac3</criteria>
 		</profile>	
 

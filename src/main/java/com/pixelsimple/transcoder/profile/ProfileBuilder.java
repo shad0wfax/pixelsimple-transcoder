@@ -110,6 +110,7 @@ public class ProfileBuilder {
 	    profile.setAudioSampleRate((String) xpath.evaluate("audioSampleRate", xmlProfileNode, XPathConstants.STRING));
 	    profile.setCustomProfileCommandHandler((String) xpath.evaluate("customProfileCommandHandler", xmlProfileNode, 
 	    		XPathConstants.STRING));
+	    profile.setHlsProfile(Boolean.parseBoolean((String) xpath.evaluate("hls", xmlProfileNode, XPathConstants.STRING)));
 	    
 	    Number maxWidth = (Number) xpath.evaluate("maxWidth", xmlProfileNode, XPathConstants.NUMBER);
 	    if (maxWidth != null) {
@@ -125,7 +126,6 @@ public class ProfileBuilder {
 	    		profile.addCriteria(a);
 	    	}
 	    }
-	    
 	    addCodecs(xmlProfileNode, xpath, profileType, profile);
 	    
 	    // Validate if the profile is fine -

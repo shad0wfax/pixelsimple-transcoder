@@ -29,7 +29,11 @@ import com.pixelsimple.transcoder.profile.Profile;
 public abstract class AbstractFfmpegTranscodeCommandBuilder implements TranscodeCommandBuilder {
 	static final Logger LOG = LoggerFactory.getLogger(AbstractFfmpegTranscodeCommandBuilder.class);
 
-	protected TranscodeCommandBuilder successor; 
+	protected TranscodeCommandBuilder successor;
+
+	// TODO: As usual, see if this can be injected someday.
+	protected ApiConfig apiConfig = RegistryService.getRegisteredApiConfig();
+
 
 	/* (non-Javadoc)
 	 * @see com.pixelsimple.transcoder.command.TranscodeCommandBuilder#setSuccessor(com.pixelsimple.transcoder.command.TranscodeCommandBuilder)
@@ -53,7 +57,6 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 	}
 	
 	protected String getFfmpegPath() {
-		ApiConfig apiConfig = RegistryService.getRegisteredApiConfig();
 		return apiConfig.getFfmpegConfig().getExecutablePath(); 
 	}
 
@@ -192,6 +195,106 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 			// NAN - ignore move on.
 		}
 	}
+
+	protected VideoCodec buildVideoCodecsSetting(Container inputMedia, Profile profile, CommandRequest request) {
+		VideoCodec vcodec = this.pickBestMatchVideoCodec(inputMedia, profile);
+		if (isValidSetting(vcodec.getStrict())) {
+			request.addArgument("-strict").addArgument(vcodec.getStrict());
+		}
+		request.addArgument("-vcodec").addArgument(vcodec.getName());
+		
+		if(isValidSetting(profile.getVideoBitRate())) {
+			request.addArgument("-b").addArgument(profile.getVideoBitRate());
+		}
+
+		if (isValidSetting(profile.getFrameRateFPS())) {
+			request.addArgument("-r").addArgument(profile.getFrameRateFPS());
+		}
+		return vcodec;
+	}
+
+	protected AudioCodec buildAudioCodecSetting(Container inputMedia, Profile profile, CommandRequest request, 
+			VideoCodec vcodec) {
+		AudioCodec acodec = this.pickBestMatchAudioCodecForVideoCodec(vcodec, inputMedia, profile);
+		
+		//TODO: Can acodec be null?
+		if (acodec != null) {
+			if (isValidSetting(acodec.getStrict())) {
+				request.addArgument("-strict").addArgument(acodec.getStrict());
+			}
+			request.addArgument("-acodec").addArgument(acodec.getName());
+			
+			if (isValidSetting(profile.getAudioBitRate())) {
+				request.addArgument("-ab").addArgument(profile.getAudioBitRate());
+			}
+			
+			if (isValidSetting(profile.getAudioSampleRate())) {
+				request.addArgument("-ar").addArgument(profile.getAudioSampleRate());
+			}
+		}
+		return acodec;
+	}
+	
+	// Returns a WxH dimension [ex: 1024x720]
+	protected String computeVideoDimensions(Container inputMedia, Profile profile) {
+		// Algo: If there is a maxwidth supplied, first we check the source to see what its width is. 
+		// If the source width is smaller than supplied maxwidth, we return null - this means the maxwidth will 
+		// be that of the source. 
+		// Suppose the source's width is greater than the maxwidth supplied, we will have to scale it down as 
+		// follows: If there is an aspect ratio supplied on the profile, we compute the height using that, 
+		// else we look at the source and see if we can get the aspect ratio and use it.
+		Stream sourceVideoStream = inputMedia.getStreams().get(StreamType.VIDEO);
+		String sourceWidthString = sourceVideoStream.getStreamAttribute(Stream.VIDEO_STREAM_ATTRIBUTES.width);
+		int sourceWidth = -1;
+
+		if (StringUtils.isNullOrEmpty(sourceWidthString)) {
+			// If we can't figure source width, don't constrain to maxwidth? - TODO: Verify what to do - Make it configuration?
+			return null;
+		}
+
+		// Should be handle NAN?
+		sourceWidth = Integer.parseInt(sourceWidthString.trim());
+		
+		if (profile.getMaxWidth() > 0 && profile.getMaxWidth() < sourceWidth && sourceWidth != -1) {
+			String aspectRatioString = isValidSetting(profile.getAspectRatio()) ? profile.getAspectRatio() : null;
+			
+			// Pick from source
+			if (aspectRatioString == null) {
+				aspectRatioString = sourceVideoStream.getStreamAttribute(Stream.VIDEO_STREAM_ATTRIBUTES.display_aspect_ratio);
+				
+				if (StringUtils.isNullOrEmpty(aspectRatioString) || !aspectRatioString.matches("[0-9]+:[0-9]+")) {
+					aspectRatioString = null;
+					// Do a hard compute - can lead to errors! 
+					String sourceHeightString = sourceVideoStream.getStreamAttribute(Stream.VIDEO_STREAM_ATTRIBUTES.height);
+					int sourceHeight = -1;
+
+					if (!StringUtils.isNullOrEmpty(sourceHeightString)) {
+						// Should be handle NAN?
+						sourceHeight = Integer.parseInt(sourceWidthString.trim());
+						aspectRatioString = "" + sourceWidth + ":" + sourceHeight;
+					}
+				}
+			}
+			
+			if (StringUtils.isNullOrEmpty(aspectRatioString)) {
+				return null;
+			}
+			int num = Integer.valueOf(aspectRatioString.substring(aspectRatioString.indexOf(":") + 1, aspectRatioString.length()));
+			int den = Integer.valueOf(aspectRatioString.substring(0, aspectRatioString.indexOf(":")));
+			int maxHeight = (profile.getMaxWidth() * num ) / den;  
+			LOG.debug("computeVideoDimensions::computed maxHeight (note: even/odd)::{}",  maxHeight);
+			
+			// Even out the maxheight as ffmpeg will fail otherwise (odd width and height transcode fail). Reduce!
+			maxHeight = (maxHeight % 2) == 0 ? maxHeight : (maxHeight -1); 
+			
+			String dimension =  profile.getMaxWidth() + "x" + maxHeight;
+
+			LOG.debug("computeVideoDimensions::identified a new dimension to use::{}",  dimension);
+			return dimension;
+		}
+		return null;
+	}
+	
 
 	
 }
