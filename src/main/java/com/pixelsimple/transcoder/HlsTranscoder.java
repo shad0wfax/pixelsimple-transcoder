@@ -68,6 +68,9 @@ public class HlsTranscoder extends AbstractTranscoder {
 		if (StringUtils.isNullOrEmpty(playlistCheckTime)) playlistCheckTime = segmentTime;
 		if (StringUtils.isNullOrEmpty(baseUri)) baseUri = "";
 		
+		// Need to do it due to the batch script behavior: Refer the MS article: http://support.microsoft.com/kb/71247
+		baseUri = quoteBaseUriForWindows(baseUri);
+		
 		CommandRequest req = new CommandRequest();
 		req.addCommand(this.apiConfig.getHlsPlaylistGeneratorPath(), 0);
 		req.addArgument(hldMediaDir).addArgument(playlistFile).addArgument(segmentFileExtension)
@@ -75,6 +78,16 @@ public class HlsTranscoder extends AbstractTranscoder {
 			.addArgument(baseUri);
 		
 		return req;
+	}
+
+	// NEed to quote since the batch script called with arguments that contain "=" character will be split.
+	// Refer the MS article: http://support.microsoft.com/kb/71247
+	// Our batch script will then strip the double quotes.
+	private String quoteBaseUriForWindows(String baseUri) {
+		if (!OSUtils.isWindows())
+			return baseUri;
+		
+		return "\"" + baseUri + "\"";
 	}
 
 	/**
