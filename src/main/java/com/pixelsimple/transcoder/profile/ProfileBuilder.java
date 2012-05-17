@@ -20,13 +20,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.pixelsimple.appcore.RegistryService;
 import com.pixelsimple.appcore.media.AudioCodec;
 import com.pixelsimple.appcore.media.Codec;
 import com.pixelsimple.appcore.media.Codecs;
 import com.pixelsimple.appcore.media.ContainerFormats;
 import com.pixelsimple.appcore.media.MediaInfoParserFactory;
 import com.pixelsimple.appcore.media.VideoCodec;
+import com.pixelsimple.appcore.registry.RegistryService;
 import com.pixelsimple.commons.util.StringUtils;
 
 /**
@@ -38,6 +38,7 @@ import com.pixelsimple.commons.util.StringUtils;
  */
 public class ProfileBuilder {
 	private static final Logger LOG = LoggerFactory.getLogger(ProfileBuilder.class);
+	private static final String DEFAULT_NINJA_COMMAND_HANDLER = "com.pixelsimple.transcoder.command.ffmpeg.FfmpegNinjaTranscodeCommandBuilder";
 	
 	private ProfileBuilder() {}
 	
@@ -127,6 +128,15 @@ public class ProfileBuilder {
 	    	}
 	    }
 	    addCodecs(xmlProfileNode, xpath, profileType, profile);
+	    
+	    String ninjaCommand = (String) xpath.evaluate("ninjaCommand", xmlProfileNode, XPathConstants.STRING);
+	    
+	    if (!StringUtils.isNullOrEmpty(ninjaCommand)) {
+	    	if (StringUtils.isNullOrEmpty(profile.getCustomProfileCommandHandler())) {
+	    		profile.setCustomProfileCommandHandler(DEFAULT_NINJA_COMMAND_HANDLER);
+	    	}
+	    	profile.setNinjaCommand(ninjaCommand);
+	    }
 	    
 	    // Validate if the profile is fine -
 	   validate(profile);

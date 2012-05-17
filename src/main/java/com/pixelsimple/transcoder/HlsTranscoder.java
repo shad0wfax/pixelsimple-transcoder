@@ -72,7 +72,7 @@ public class HlsTranscoder extends AbstractTranscoder {
 		baseUri = quoteBaseUriForWindows(baseUri);
 		
 		CommandRequest req = new CommandRequest();
-		req.addCommand(this.apiConfig.getHlsPlaylistGeneratorPath(), 0);
+		req.addCommand(this.transcoderConfig.getHlsPlaylistGeneratorPath(), 0);
 		req.addArgument(hldMediaDir).addArgument(playlistFile).addArgument(segmentFileExtension)
 			.addArgument(playlistCheckTime).addArgument(hlsTranscodeCompleteFilePath).addArgument(segmentTime)
 			.addArgument(baseUri);
@@ -95,7 +95,7 @@ public class HlsTranscoder extends AbstractTranscoder {
 	 * @return
 	 */
 	private String getHlsTranscodeCompleteFilePath(TranscoderOutputSpec spec) {
-		return spec.getOutputFileDir() + OSUtils.folderSeparator() + this.apiConfig.getHlsTranscodeCompleteFile();
+		return spec.getOutputFileDir() + OSUtils.folderSeparator() + this.transcoderConfig.getHlsTranscodeCompleteFile();
 	}
 
 

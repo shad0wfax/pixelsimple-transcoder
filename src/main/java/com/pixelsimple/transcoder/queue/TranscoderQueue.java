@@ -8,10 +8,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pixelsimple.appcore.Registrable;
-import com.pixelsimple.appcore.RegistryService;
+import com.pixelsimple.appcore.registry.GenericRegistryEntry;
+import com.pixelsimple.appcore.registry.RegistryService;
 import com.pixelsimple.transcoder.Handle;
 import com.pixelsimple.transcoder.TranscodeStatus;
+import com.pixelsimple.transcoder.config.TranscoderRegistryKeys;
 
 /**
  *
@@ -25,18 +26,14 @@ public class TranscoderQueue {
 	
 	// TODO: Should be synchronized?? Repeated enqueue should be prevented. 
 	public static void enqueue(Handle handle, TranscodeStatus status) {
-		@SuppressWarnings("unchecked")
-		Map<Handle, TranscodeStatus> transcoderQueue = (Map<Handle, TranscodeStatus>) RegistryService.getRegisteredEntry(
-			Registrable.TRANSCODER_QUEUE);
+		Map<Handle, TranscodeStatus> transcoderQueue = getTranscoderQueue();
 		transcoderQueue.put(handle, status);
 		
 		LOG.debug("enqueue::Added to the transcoder queue - handle {} status {}", handle, status);
 	}
 	
 	public static TranscodeStatus dequeue(Handle handle) {
-		@SuppressWarnings("unchecked")
-		Map<Handle, TranscodeStatus> transcoderQueue = (Map<Handle, TranscodeStatus>) RegistryService.getRegisteredEntry(
-			Registrable.TRANSCODER_QUEUE);
+		Map<Handle, TranscodeStatus> transcoderQueue = getTranscoderQueue();
 
 		LOG.debug("dequeue::Removed from transcoder queue - handle {}", handle);
 		
@@ -44,14 +41,22 @@ public class TranscoderQueue {
 	}
 	
 	public static TranscodeStatus peek(Handle handle) {
-		@SuppressWarnings("unchecked")
-		Map<Handle, TranscodeStatus> transcoderQueue = (Map<Handle, TranscodeStatus>) RegistryService.getRegisteredEntry(
-			Registrable.TRANSCODER_QUEUE);
-
+		Map<Handle, TranscodeStatus> transcoderQueue = getTranscoderQueue();
 		TranscodeStatus status = transcoderQueue.get(handle); 
+
 		LOG.debug("peek::Peeking from transcoder queue - handle {} with status {}", handle, status);
 		
 		return status;
+	}
+	
+	private static Map<Handle, TranscodeStatus> getTranscoderQueue() {
+		GenericRegistryEntry entry = RegistryService.getGenericRegistryEntry();
+		@SuppressWarnings("unchecked")
+		Map<Handle, TranscodeStatus> transcoderQueue = (Map<Handle, TranscodeStatus>) entry.getEntry(
+				TranscoderRegistryKeys.TRANSCODER_QUEUE);
+		
+		return transcoderQueue;
+
 	}
 	
 }

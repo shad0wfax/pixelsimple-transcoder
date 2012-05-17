@@ -6,13 +6,14 @@ package com.pixelsimple.transcoder.command.ffmpeg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pixelsimple.appcore.media.AudioCodec;
-import com.pixelsimple.appcore.media.VideoCodec;
+import com.pixelsimple.appcore.media.MediaType;
 import com.pixelsimple.commons.command.CommandRequest;
 import com.pixelsimple.commons.media.Container;
 import com.pixelsimple.commons.util.OSUtils;
 import com.pixelsimple.commons.util.StringUtils;
 import com.pixelsimple.transcoder.TranscoderOutputSpec;
+import com.pixelsimple.transcoder.config.TranscoderConfig;
+import com.pixelsimple.transcoder.config.TranscoderRegistryKeys;
 import com.pixelsimple.transcoder.profile.Profile;
 
 /**
@@ -32,51 +33,29 @@ public class FfmpegHLSTranscodeCommandBuilder extends AbstractFfmpegTranscodeCom
 		String customProfileCommandHandler = profile.getCustomProfileCommandHandler();
 
 		if (!StringUtils.isNullOrEmpty(customProfileCommandHandler) && !this.getClass().getName().equals(customProfileCommandHandler)) {
-			
-			if (this.successor != null) {
-				LOG.debug("buildCommand::Cannot handle building the command, delegating to the successor for profile - {}",
-					profile);
-				return this.successor.buildCommand(inputMedia, spec);
-			} else {
-				LOG.debug("buildCommand::Could not find any successor to handle building the command for profile - {}", 
-					profile);
-				return null;
-			}
+			return this.delegateCommandBuilding(inputMedia, spec);
 		}
 		
 		CommandRequest request = new CommandRequest().addCommand(getFfmpegPath(), 0);
 		
-		// Keep it simple - gunning for this :-)
-		// ffmpeg -y -i input_file [output_file_options: like bitrate,codecs,format etc] output_file
-		String videoInputPath = inputMedia.getFilePathWithName(); 
-		request.addArgument("-y").addArgument("-i").addArgument(videoInputPath);
-
-		VideoCodec vcodec = this.buildVideoCodecsSetting(inputMedia, profile, request);
-		AudioCodec acodec = this.buildAudioCodecSetting(inputMedia, profile, request, vcodec);
-		
-		String dimension = this.computeVideoDimensions(inputMedia, profile);
-		
-		if (!StringUtils.isNullOrEmpty(dimension)) {
-			request.addArgument("-s").addArgument(dimension);
-		} else {
-			// If dimension has been set, ignore aspect ratio - else, set the aspect ratio
-			if (isValidSetting(profile.getAspectRatio())) {
-				request.addArgument("-aspect").addArgument(profile.getAspectRatio());					
-			}
+		if (inputMedia.getMediaType() == MediaType.VIDEO) {
+			this.buildVideoTranscodeCommand(inputMedia, profile, request, true);
+		} else if (inputMedia.getMediaType() == MediaType.AUDIO) {
+			this.buildAudioTranscodeCommand(inputMedia, profile, request);
 		}
 
-		this.buildAdditionalParamters(profile, request);
-		this.addChannelRestriction(inputMedia, acodec, request);
-
-		// TODO: Hardcoded for now, change it based on what is being transcoded.
+		// TODO: Hardcoded for now, change it based on what is being transcoded. -map 0 means copy all streams.
 		request.addArgument("-map").addArgument("0");
 		
 		if (isValidSetting(profile.getFileFormat())) {
+			TranscoderConfig transcoderConfig = (TranscoderConfig) apiConfig.getGenericRegistryEntry().getEntry(
+					TranscoderRegistryKeys.TRANSCODER_CONFIG);
+			
 			// This will be a temp file, the actual playlist file is created by the scripts.
 			String file = spec.getHlsTranscoderOutputSpec().getComputedPlaylistFileWithPath();
 			int xtnInd = file.lastIndexOf(".");
 			String playlistFileNameForFfmpeg = file.substring(0, xtnInd) + "_temp" + file.substring(xtnInd);
-			String hlsFilePattern =  apiConfig.getHlsFileSegmentPattern();
+			String hlsFilePattern =  transcoderConfig.getHlsFileSegmentPattern();
 			
 			request.addArgument("-f").addArgument(profile.getFileFormat())
 				.addArgument("-segment_time").addArgument("" + spec.getHlsTranscoderOutputSpec().getSegmentTime())

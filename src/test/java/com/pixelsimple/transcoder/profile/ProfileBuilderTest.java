@@ -91,6 +91,16 @@ public class ProfileBuilderTest {
 		Assert.assertEquals(profile.getAssociatedAudioCodecs(profile.getVideoCodecs().get(0)).size(), 2);
 		Assert.assertEquals(profile.getAssociatedAudioCodecs(profile.getVideoCodecs().get(1)).size(), 3);
 		
+		node = validVideoXmlNodeWithNinjaCommand();
+		profile = ProfileBuilder.buildProfile(node);
+		Assert.assertEquals(profile.getNinjaCommand(), "$transcode_cmd -i $if c:a copy c:v copy $of");
+		Assert.assertEquals(profile.getCustomProfileCommandHandler(), "com.pixelsimple.transcoder.command.ffmpeg.FfmpegNinjaTranscodeCommandBuilder");
+
+		node = validVideoXmlNodeWithNinjaCommandWithCustomProfileCommandHandler();
+		profile = ProfileBuilder.buildProfile(node);
+		Assert.assertEquals(profile.getNinjaCommand(), "$transcode_cmd -i $if c:a copy c:v copy $of");
+		Assert.assertEquals(profile.getCustomProfileCommandHandler(), "com.my.command.MyCommandHandler");
+				
 	}
 	
 	/**
@@ -287,6 +297,18 @@ public class ProfileBuilderTest {
 		return asNode(xml);
 	}
 
+	private Node validVideoXmlNodeWithNinjaCommand() {
+		String xml = "<profile><id>Opera_10.5_high_bandwidth</id><name>Firefox 10.5 and lower. Supports Ogg.</name><type>video</type><container>ogg</container><fileExtension>ogg</fileExtension><fileFormat>avi</fileFormat><videoCodec>libtheora</videoCodec><audioCodec>libvorbis</audioCodec><videoBitRate></videoBitRate><vidoeQuality>3</vidoeQuality><audioBitRate>160k</audioBitRate><audioSampleRate>8000</audioSampleRate><aspectRatio>SAME_AS_SOURCE</aspectRatio><maxWidth>SAME_AS_SOURCE</maxWidth><frameRateFPS>SAME_AS_SOURCE</frameRateFPS><optionalAdditionalParameters></optionalAdditionalParameters><criteria>Opera10.5,Desktop,PC,Windows,Mac</criteria><hls>true</hls><ninjaCommand>$transcode_cmd -i $if c:a copy c:v copy $of</ninjaCommand></profile>";
+		return asNode(xml);
+	}
+
+	private Node validVideoXmlNodeWithNinjaCommandWithCustomProfileCommandHandler() {
+		String xml = "<profile><id>Opera_10.5_high_bandwidth</id><name>Firefox 10.5 and lower. Supports Ogg.</name><type>video</type><container>ogg</container><fileExtension>ogg</fileExtension><fileFormat>avi</fileFormat><videoCodec>libtheora</videoCodec><audioCodec>libvorbis</audioCodec><videoBitRate></videoBitRate><vidoeQuality>3</vidoeQuality><audioBitRate>160k</audioBitRate><audioSampleRate>8000</audioSampleRate><aspectRatio>SAME_AS_SOURCE</aspectRatio><maxWidth>SAME_AS_SOURCE</maxWidth><frameRateFPS>SAME_AS_SOURCE</frameRateFPS><optionalAdditionalParameters></optionalAdditionalParameters><criteria>Opera10.5,Desktop,PC,Windows,Mac</criteria><hls>true</hls><ninjaCommand>$transcode_cmd -i $if c:a copy c:v copy $of</ninjaCommand><customProfileCommandHandler>com.my.command.MyCommandHandler</customProfileCommandHandler></profile>";
+		return asNode(xml);
+		
+	}
+
+	
 	private Node asNode(String xml) {
 		Node node = null;
 		try {

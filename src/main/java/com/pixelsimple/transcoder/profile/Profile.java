@@ -35,6 +35,7 @@ public final class Profile {
 	private String audioSampleRate;
 	private String customProfileCommandHandler;
 	private boolean hlsProfile;
+	private String ninjaCommand;
 
 	// Will have the order maintained. The position also determines the priority.
 	private List<ProfileVideoCodec> profileVideoCodecs = new ArrayList<ProfileVideoCodec>();  
@@ -416,6 +417,20 @@ public final class Profile {
 	 */
 	protected void setCustomProfileCommandHandler(String customProfileCommandHandler) {
 		this.customProfileCommandHandler = customProfileCommandHandler;
+	}
+
+	/**
+	 * @return the ninjaCommand
+	 */
+	public String getNinjaCommand() {
+		return this.ninjaCommand;
+	}
+
+	/**
+	 * @param ninjaCommand the ninjaCommand to set
+	 */
+	protected void setNinjaCommand(String ninjaCommand) {
+		this.ninjaCommand = ninjaCommand;
 	}
 
 	/**

@@ -34,14 +34,14 @@
 			<audioBitRate></audioBitRate>
 			<!- - Override aspect ratio if needed using: X:Y format. Ex: 4:3 or 16:9 - ->
 			<aspectRatio></aspectRatio>
-			<!- - Optional - should be in pixels: ex: 1024. This will be used to compute the size for input as follows: height = maxWidth * aspect-ration. - ->
+			<!- - Optional - should be in pixels: ex: 1024. This will be used to compute the size for input as follows: height = maxWidth * aspect-ratio. - ->
 			<maxWidth></maxWidth>
 			<!- -  optional, but can be kept as source. Expressed as 29.97 or 30000/1001 - ->
 			<frameRateFPS></frameRateFPS>
 			<!- -  Optional, but can be kept as source. Expressed as a number: 8000  44100 etc..- ->
 			<audioSampleRate></audioSampleRate>
 
-			<!- - Additional params that can be directly used with the transcoding provider (ffmpeg). 			
+			<!- - Additional params that can be directly used with the transcoding provider (ffmpeg). - -> 			
 			<additionalParameters></additionalParameters>
 
 			<!- - Our own/custom nomenclature that defines a set of criteria comma separated. This will help match the profile to a client input better. - ->
@@ -51,8 +51,28 @@
 			<hls>true/false</hls>
 			
 			<!- - An extension point to allow custom profile type. This is the handler to use for the custom profile tyoe. The handler builds the command. 
-				The string should be a full class that can be instantiated and implements the com.pixelsimple.transcoder.command.TranscodeCommandBuilder.	- ->
+				The string should be a full class that can be instantiated and extend the com.pixelsimple.transcoder.command.TranscodeCommandBuilderApi class.	- ->
 			<customProfileCommandHandler></customProfileCommandHandler>
+			
+			<!- - A super powerful option, that can be used by advanced/smart users who know how to build commands.
+				A ninja level of proficiency is required to use this. This is an optional tag and if supplied it will ignore a lot of other tags.
+				By default this will use the FfmpegNinjaTranscodeCommandBuilder (need not be specified as part of customProfileCommandHandler,
+				 but this can be overriden by developers wanting to implement their own handlers by specifying it in customProfileCommandHandler.	
+				Currently supported replacement tokens: (the tokens can be overriden in the app configuration file) 				
+				$transcode_cmd -> Will replace with complete path of ffmpeg. Custom handlers can replace any command they want (alternative to ffmpeg?).
+				$if -> Will replace with the input file. (optional)
+				$of - will replace with output file. (optional)
+				$vb - will replace with video bit rate (optional)
+				$ab - will replace with audio bit rate (optional)
+				
+				Ex1: $transcode_cmd -i $if -f mp4 c:v libx264 c:a mp3 %of 
+				Ex2: $transcode_cmd -i $if -f mp4 c:v libx264 -b:v %vb c:a mp3 -b:a %ab %of  
+				Ex3: $transcode_cmd -i c:\videos\sample.flv -f mp4 c:v libx264 -b:v 800k c:a libmp3lame -b:a %ab c:\videos\transcoded\out.m4v  
+				Ex4: $transcode_cmd -i /home/audio/sample.m4a c:a libmp3lame -b:a 96k /home/audio/transcoded/out.mp3
+				
+				The values for $vb and $ab should be supplied in the videoBitRate and audioBitRate tags if needed for replacement.
+				- -> 			
+			<ninjaCommand></ninjaCommand>
 			
 		</profile>	
 -->

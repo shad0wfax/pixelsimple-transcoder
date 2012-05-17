@@ -7,11 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pixelsimple.appcore.ApiConfig;
-import com.pixelsimple.appcore.Registrable;
-import com.pixelsimple.appcore.RegistryService;
+import com.pixelsimple.appcore.registry.GenericRegistryEntry;
+import com.pixelsimple.appcore.registry.RegistryService;
 import com.pixelsimple.commons.command.CommandRequest;
 import com.pixelsimple.commons.media.Container;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilderChain;
+import com.pixelsimple.transcoder.config.TranscoderConfig;
+import com.pixelsimple.transcoder.config.TranscoderRegistryKeys;
 import com.pixelsimple.transcoder.exception.TranscoderException;
 
 /**
@@ -23,11 +25,14 @@ public abstract class AbstractTranscoder {
 	protected static final Logger LOG = LoggerFactory.getLogger(AbstractTranscoder.class);
 	// TODO: As usual, see if this can be injected someday.
 	protected ApiConfig apiConfig = RegistryService.getRegisteredApiConfig();
+	protected TranscoderConfig transcoderConfig = (TranscoderConfig) RegistryService.getGenericRegistryEntry().getEntry(
+					TranscoderRegistryKeys.TRANSCODER_CONFIG);
 	
 	private TranscodeCommandBuilderChain chain;
 	
 	public AbstractTranscoder() {
-		chain = (TranscodeCommandBuilderChain) RegistryService.getRegisteredEntry(Registrable.TRANSCODE_COMMAND_CHAIN);
+		GenericRegistryEntry entry = RegistryService.getGenericRegistryEntry();
+		chain = (TranscodeCommandBuilderChain) entry.getEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN);
 		LOG.debug("transcode()::Registered chain : {} ", chain);
 	}
 	

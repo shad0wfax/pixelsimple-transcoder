@@ -9,10 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pixelsimple.appcore.ApiConfig;
-import com.pixelsimple.appcore.RegistryService;
 import com.pixelsimple.appcore.media.AudioCodec;
 import com.pixelsimple.appcore.media.StreamType;
 import com.pixelsimple.appcore.media.VideoCodec;
+import com.pixelsimple.appcore.registry.RegistryService;
 import com.pixelsimple.commons.command.CommandRequest;
 import com.pixelsimple.commons.media.Container;
 import com.pixelsimple.commons.media.Stream;
@@ -49,6 +49,18 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 	@Override
 	public abstract CommandRequest buildCommand(Container inputMedia, TranscoderOutputSpec spec);
 	
+	protected CommandRequest delegateCommandBuilding(Container inputMedia, TranscoderOutputSpec spec) {
+		if (this.successor != null) {
+			LOG.debug("buildCommand::Cannot handle building the command, delegating to the successor for profile - {}",
+				spec.getTargetProfile());
+			return this.successor.buildCommand(inputMedia, spec);
+		} else {
+			LOG.debug("buildCommand::Could not find any successor to handle building the command for profile - {}", 
+				spec.getTargetProfile());
+			return null;
+		}
+	}
+	
 	protected boolean isValidSetting(String attribute) {
 		boolean invalid = StringUtils.isNullOrEmpty(attribute) 
 				|| attribute.trim().equalsIgnoreCase(Profile.SAME_AS_SOURCE_SETTING); 
@@ -60,7 +72,76 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 		return apiConfig.getFfmpegConfig().getExecutablePath(); 
 	}
 
-	protected VideoCodec pickBestMatchVideoCodec(Container inputMedia, Profile profile) {
+	protected void buildVideoTranscodeCommand(Container inputMedia, Profile profile, CommandRequest request, boolean skipFileFormat) {
+		// Keep it simple - gunning for this :-)
+		// ffmpeg -y -i input_file [output_file_options: like bitrate,codecs,format etc] output_file
+		String videoInputPath = inputMedia.getFilePathWithName(); 
+		request.addArgument("-y").addArgument("-i").addArgument(videoInputPath);
+
+		// Note: Having problems with ffmpeg sometimes when -f is container format name. Ex: wmv. Let it auto-detect/use fileFormat
+//		command.append(" -f " + profile.getContainerFormat());
+		if (isValidSetting(profile.getFileFormat()) && !skipFileFormat) {
+			request.addArgument("-f").addArgument(profile.getFileFormat());
+		}
+		
+		VideoCodec vcodec = this.buildVideoCodecsSetting(inputMedia, profile, request);
+		AudioCodec acodec = this.buildAudioCodecSetting(inputMedia, profile, request, vcodec);
+		
+		String dimension = this.computeVideoDimensions(inputMedia, profile);
+		
+		if (!StringUtils.isNullOrEmpty(dimension)) {
+			request.addArgument("-s").addArgument(dimension);
+		} else {
+			// If dimension has been set, ignore aspect ratio - else, set the aspect ratio
+			if (isValidSetting(profile.getAspectRatio())) {
+				request.addArgument("-aspect").addArgument(profile.getAspectRatio());					
+			}
+		}
+
+		this.buildAdditionalParamters(profile, request);
+		this.addChannelRestriction(inputMedia, acodec, request);
+	}
+
+	protected void buildAudioTranscodeCommand(Container inputMedia,
+			Profile profile, CommandRequest request) {
+		// Keep it simple - gunning for this :-)
+		// ffmpeg -y -i input_file [output_file_options: like bitrate,codecs,format etc] output_file
+		String videoInputPath = inputMedia.getFilePathWithName(); 
+		request.addArgument("-y").addArgument("-i").addArgument(videoInputPath);
+
+		// Note: Having problems with ffmpeg sometimes when -f is container format name. Ex: wmv. Let it auto-detect/use fileFormat
+//		command.append(" -f " + profile.getContainerFormat());
+		if (isValidSetting(profile.getFileFormat())) {
+			request.addArgument("-f").addArgument(profile.getFileFormat());
+		}
+		
+		AudioCodec acodec = this.buildAudioOnlyCodecSetting(inputMedia, profile, request);
+		this.buildAdditionalParamters(profile, request);
+		this.addChannelRestriction(inputMedia, acodec, request);
+	}
+
+	private AudioCodec buildAudioOnlyCodecSetting(Container inputMedia, Profile profile, CommandRequest request) {
+		AudioCodec acodec = this.pickBestMatchAudioCodecForAudioOnlyTranscode(inputMedia, profile);
+		
+		//TODO: Throw Exception?
+		if (acodec != null) {
+			if (isValidSetting(acodec.getStrict())) {
+				request.addArgument("-strict").addArgument(acodec.getStrict());
+			}
+			request.addArgument("-acodec").addArgument(acodec.getName());
+			
+			if (isValidSetting(profile.getAudioBitRate())) {
+				request.addArgument("-ab").addArgument(profile.getAudioBitRate());
+			}
+			
+			if (isValidSetting(profile.getAudioSampleRate())) {
+				request.addArgument("-ar").addArgument(profile.getAudioSampleRate());
+			}
+		}
+		return acodec;
+	}
+	
+	private VideoCodec pickBestMatchVideoCodec(Container inputMedia, Profile profile) {
 		// Algo: Profile has the list of video codecs that are to be used and is in preferred order (list).
 		// We will check to see if the source video codec matches any of the video codec, if so, we can just reuse (copy).
 		// If there is no match, then we pick the first video codec in the list as it was the preferred one.
@@ -82,7 +163,7 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 	}
 	
 	//TODO: defensive ! - what if no audio codecs for a video codec? Right now it will be NPE/AIOBE all the way :-)
-	protected AudioCodec pickBestMatchAudioCodecForVideoCodec(VideoCodec videoCodec, Container inputMedia, Profile profile) {
+	private AudioCodec pickBestMatchAudioCodecForVideoCodec(VideoCodec videoCodec, Container inputMedia, Profile profile) {
 		// Algo: Profile has the list of audio codecs associated for a video codec, again as a list (in order of preference).
 		// We will check to see if there is a match already with the source and if so use it (copy). If not, pick the 
 		// first for the video codec as that was the preffered order. 
@@ -97,7 +178,7 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 		
 	}
 
-	protected AudioCodec pickBestMatchAudioCodecForAudioOnlyTranscode(Container inputMedia, Profile profile) {
+	private AudioCodec pickBestMatchAudioCodecForAudioOnlyTranscode(Container inputMedia, Profile profile) {
 		// Algo: Check if there is a match with the list of audio codecs listed for the profile, else pick first in list.
 		AudioCodec audioCodec = profile.getAudioCodecs().get(0);
 		
@@ -110,7 +191,7 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 	}
 	
 
-	protected AudioCodec matchAudioCodec(Container inputMedia, List<AudioCodec> codecs) {
+	private AudioCodec matchAudioCodec(Container inputMedia, List<AudioCodec> codecs) {
 		AudioCodec audioCodec = null;
 		Stream sourceAudioStream = inputMedia.getStreams().get(StreamType.AUDIO);
 		String sourceCodecName = sourceAudioStream.getStreamAttribute(Stream.AUDIO_STREAM_ATTRIBUTES.codec_name);
@@ -123,7 +204,7 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 		return audioCodec;
 	}
 	
-	protected VideoCodec findMatch(List<VideoCodec> codecs, VideoCodec sourceCodec) {
+	private VideoCodec findMatch(List<VideoCodec> codecs, VideoCodec sourceCodec) {
 		VideoCodec matchedCodec = null;
 		for (int i = 0, size = codecs.size(); i < size; i++) {
 			VideoCodec preferredVideoCodec = codecs.get(i);
@@ -136,7 +217,7 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 		return matchedCodec;
 	}
 
-	protected AudioCodec findMatch(List<AudioCodec> codecs, AudioCodec sourceCodec) {
+	private AudioCodec findMatch(List<AudioCodec> codecs, AudioCodec sourceCodec) {
 		AudioCodec matchedCodec = null;
 		for (int i = 0, size = codecs.size(); i < size; i++) {
 			AudioCodec preferredVideoCodec = codecs.get(i);
@@ -149,7 +230,7 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 		return matchedCodec;
 	}
 
-	protected void buildAdditionalParamters(Profile profile, CommandRequest request) {
+	private void buildAdditionalParamters(Profile profile, CommandRequest request) {
 		
 		// Additional parameters might have space, so get it as string array to set
 		// This is to ensure that if, a parameter is to be overriden it can be done individually here. 
@@ -163,7 +244,7 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 		}
 	}
 	
-	protected void addChannelRestriction(Container inputMedia, AudioCodec acodec, CommandRequest request) {
+	private void addChannelRestriction(Container inputMedia, AudioCodec acodec, CommandRequest request) {
 		int limit = acodec.getMaxChannels();
 		
 		// first check if there are any codec based channel restriction:
@@ -196,7 +277,7 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 		}
 	}
 
-	protected VideoCodec buildVideoCodecsSetting(Container inputMedia, Profile profile, CommandRequest request) {
+	private VideoCodec buildVideoCodecsSetting(Container inputMedia, Profile profile, CommandRequest request) {
 		VideoCodec vcodec = this.pickBestMatchVideoCodec(inputMedia, profile);
 		if (isValidSetting(vcodec.getStrict())) {
 			request.addArgument("-strict").addArgument(vcodec.getStrict());
@@ -213,7 +294,7 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 		return vcodec;
 	}
 
-	protected AudioCodec buildAudioCodecSetting(Container inputMedia, Profile profile, CommandRequest request, 
+	private AudioCodec buildAudioCodecSetting(Container inputMedia, Profile profile, CommandRequest request, 
 			VideoCodec vcodec) {
 		AudioCodec acodec = this.pickBestMatchAudioCodecForVideoCodec(vcodec, inputMedia, profile);
 		
@@ -236,7 +317,7 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 	}
 	
 	// Returns a WxH dimension [ex: 1024x720]
-	protected String computeVideoDimensions(Container inputMedia, Profile profile) {
+	private String computeVideoDimensions(Container inputMedia, Profile profile) {
 		// Algo: If there is a maxwidth supplied, first we check the source to see what its width is. 
 		// If the source width is smaller than supplied maxwidth, we return null - this means the maxwidth will 
 		// be that of the source. 

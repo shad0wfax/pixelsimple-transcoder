@@ -8,7 +8,9 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.pixelsimple.appcore.ApiConfig;
 import com.pixelsimple.appcore.registry.MapRegistry;
+import com.pixelsimple.appcore.registry.RegistryService;
 import com.pixelsimple.commons.test.appcore.init.TestAppInitializer;
 import com.pixelsimple.transcoder.Handle;
 import com.pixelsimple.transcoder.TranscodeStatus;
@@ -27,9 +29,10 @@ public class TranscoderQueueTest {
 	@Before
 	public void setUp() throws Exception {
 		TestAppInitializer.bootStrapRegistryForTesting();
+		ApiConfig apiConfig = RegistryService.getRegisteredApiConfig();
 		TranscoderInitializer initializer = new TranscoderInitializer();
 		try {
-			initializer.initialize(MapRegistry.INSTANCE);
+			initializer.initialize(MapRegistry.INSTANCE, apiConfig);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -8,7 +8,11 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.pixelsimple.commons.command.CommandRequest;
+import com.pixelsimple.commons.media.Container;
+import com.pixelsimple.transcoder.TranscoderOutputSpec;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilder;
+import com.pixelsimple.transcoder.command.TranscodeCommandBuilderApi;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilderChain;
 
 /**
@@ -51,6 +55,22 @@ public class TranscodeCommandBuilderChainTest {
 		
 		Assert.assertEquals(element2.successor, null);
 		
+		TranscodeCommandBuilder sampleTranscodeCommandBuilderApiBuilder = new SampleTranscodeCommandBuilderApi();
+		chain.addNextSuccessor(sampleTranscodeCommandBuilderApiBuilder);
+		
+		Assert.assertEquals(element2.successor, sampleTranscodeCommandBuilderApiBuilder);
+		
+	}
+	
+	private static class SampleTranscodeCommandBuilderApi extends TranscodeCommandBuilderApi {
+
+		/* (non-Javadoc)
+		 * @see com.pixelsimple.transcoder.command.TranscodeCommandBuilderApi#buildTranscodeCommand(com.pixelsimple.commons.media.Container, com.pixelsimple.transcoder.TranscoderOutputSpec)
+		 */
+		@Override
+		public CommandRequest buildTranscodeCommand(Container inputMedia, TranscoderOutputSpec spec) {
+			return null;
+		}
 		
 	}
 
