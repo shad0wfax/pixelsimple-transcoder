@@ -17,12 +17,16 @@ public class TranscoderConfig {
 	// Going further all paths will be as string instead of their own objects (like ffmpeg/ffprobe)
 	private String hlsPlaylistGeneratorPath;
 	private String hlsFileSegmentPattern;
+	private String ninjaInputFilePattern;
+	private String ninjaOutputFilePattern;
+	private String ninjaVideoBitratePattern;
+	private String ninjaAudioBitratePattern;
 
 	/**
 	 * @return the hlsTranscodeCompleteFile
 	 */
 	public String getHlsTranscodeCompleteFile() {
-		return hlsTranscodeCompleteFile;
+		return this.hlsTranscodeCompleteFile;
 	}
 	
 	/**
@@ -58,8 +62,66 @@ public class TranscoderConfig {
 		file = null; // gc it hopefully
 	}
 	
+	/**
+	 * @return the ninjaInputFilePattern
+	 */
+	public String getNinjaInputFilePattern() {
+		return ninjaInputFilePattern;
+	}
+
+	/**
+	 * @param ninjaInputFilePattern the ninjaInputFilePattern to set
+	 */
+	public void setNinjaInputFilePattern(String ninjaInputFilePattern) {
+		this.ninjaInputFilePattern = ninjaInputFilePattern;
+	}
+
+	/**
+	 * @return the ninjaOutputFilePattern
+	 */
+	public String getNinjaOutputFilePattern() {
+		return ninjaOutputFilePattern;
+	}
+
+	/**
+	 * @param ninjaOutputFilePattern the ninjaOutputFilePattern to set
+	 */
+	public void setNinjaOutputFilePattern(String ninjaOutputFilePattern) {
+		this.ninjaOutputFilePattern = ninjaOutputFilePattern;
+	}
+
+	/**
+	 * @return the ninjaVideoBitratePattern
+	 */
+	public String getNinjaVideoBitratePattern() {
+		return ninjaVideoBitratePattern;
+	}
+
+	/**
+	 * @param ninjaVideoBitratePattern the ninjaVideoBitratePattern to set
+	 */
+	public void setNinjaVideoBitratePattern(String ninjaVideoBitratePattern) {
+		this.ninjaVideoBitratePattern = ninjaVideoBitratePattern;
+	}
+
+	/**
+	 * @return the ninjaAudioBitratePattern
+	 */
+	public String getNinjaAudioBitratePattern() {
+		return ninjaAudioBitratePattern;
+	}
+
+	/**
+	 * @param ninjaAudioBitratePattern the ninjaAudioBitratePattern to set
+	 */
+	public void setNinjaAudioBitratePattern(String ninjaAudioBitratePattern) {
+		this.ninjaAudioBitratePattern = ninjaAudioBitratePattern;
+	}
+
 	public String toString() {
 		return "TranscoderConfig::\n" + this.hlsPlaylistGeneratorPath  + "\n" + this.hlsTranscodeCompleteFile
-			+ "\n" + this.hlsFileSegmentPattern;
+			+ "\n" + this.hlsFileSegmentPattern + "\n" + this.ninjaAudioBitratePattern + "\t" + this.ninjaVideoBitratePattern
+			+ "\t" + this.ninjaInputFilePattern + "\t" + this.ninjaOutputFilePattern;
 	}
+
 }

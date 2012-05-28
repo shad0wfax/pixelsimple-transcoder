@@ -10,10 +10,12 @@ import org.junit.Test;
 
 import com.pixelsimple.commons.command.CommandRequest;
 import com.pixelsimple.commons.media.Container;
+import com.pixelsimple.commons.test.appcore.init.TestAppInitializer;
 import com.pixelsimple.transcoder.TranscoderOutputSpec;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilder;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilderApi;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilderChain;
+import com.pixelsimple.transcoder.init.TranscoderInitializer;
 
 /**
  *
@@ -27,6 +29,8 @@ public class TranscodeCommandBuilderChainTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		// init with transcoder initializer
+		TestAppInitializer.bootStrapRegistryForTesting(new TranscoderInitializer());
 	}
 
 	/**

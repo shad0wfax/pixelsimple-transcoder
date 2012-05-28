@@ -38,7 +38,10 @@ public class TranscoderInitializer implements Initializable {
 	private static final String APP_CONFIG_HLS_COMPLETE_FILE = "hlsTranscodeCompleteFile";
 	private static final String APP_CONFIG_HLS_PLAYLIST_GENERATOR_PATH = "hlsPlaylistGeneratorPath";
 	private static final String APP_CONFIG_HLS_FILE_SEGMENT_PATTERN = "hlsFileSegmentPattern";
-	
+	private static final String TRANSCODER_NINJA_INPUT_FILE_PATTERN = "transcoderNinjaInputFilePattern";
+	private static final String TRANSCODER_NINJA_OUTPUT_FILE_PATTERN = "transcoderNinjaOutputFilePattern";
+	private static final String TRANSCODER_NINJA_VIDEO_BITRATE_PATTERN = "transcoderNinjaVideoBitratePattern";
+	private static final String TRANSCODER_NINJA_AUDIO_BITRATE_PATTERN = "transcoderNinjaAudioBitratePattern";	
 
 	/* (non-Javadoc)
 	 * @see com.pixelsimple.appcore.init.Initializable#initialize(com.pixelsimple.appcore.Registry)
@@ -66,11 +69,15 @@ public class TranscoderInitializer implements Initializable {
 
 	private void initTranscoderConfig(Registry registry, ApiConfig apiConfig) {
 		Environment env = apiConfig.getEnvironment();
-		Map<String, String> configMap = env.getApplicationConfiguratations();
+		Map<String, String> configMap = env.getImmutableApplicationConfiguratations();
 		TranscoderConfig tConfig = new TranscoderConfig();
 		tConfig.setHlsFileSegmentPattern(configMap.get(APP_CONFIG_HLS_FILE_SEGMENT_PATTERN));
 		tConfig.setHlsPlaylistGeneratorPath(env.getAppBasePath() + configMap.get(APP_CONFIG_HLS_PLAYLIST_GENERATOR_PATH));
 		tConfig.setHlsTranscodeCompleteFile(configMap.get(APP_CONFIG_HLS_COMPLETE_FILE));
+		tConfig.setNinjaAudioBitratePattern(configMap.get(TRANSCODER_NINJA_AUDIO_BITRATE_PATTERN));
+		tConfig.setNinjaVideoBitratePattern(configMap.get(TRANSCODER_NINJA_VIDEO_BITRATE_PATTERN));
+		tConfig.setNinjaInputFilePattern(configMap.get(TRANSCODER_NINJA_INPUT_FILE_PATTERN));
+		tConfig.setNinjaOutputFilePattern(configMap.get(TRANSCODER_NINJA_OUTPUT_FILE_PATTERN));
 		
 		GenericRegistryEntry genericRegistryEntry = apiConfig.getGenericRegistryEntry();
 		genericRegistryEntry.addEntry(TranscoderRegistryKeys.TRANSCODER_CONFIG, tConfig);

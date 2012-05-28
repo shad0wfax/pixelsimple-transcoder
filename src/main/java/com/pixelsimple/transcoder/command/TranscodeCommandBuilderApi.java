@@ -6,10 +6,13 @@ package com.pixelsimple.transcoder.command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pixelsimple.appcore.ApiConfig;
+import com.pixelsimple.appcore.registry.RegistryService;
 import com.pixelsimple.commons.command.CommandRequest;
 import com.pixelsimple.commons.media.Container;
-import com.pixelsimple.commons.util.StringUtils;
 import com.pixelsimple.transcoder.TranscoderOutputSpec;
+import com.pixelsimple.transcoder.config.TranscoderConfig;
+import com.pixelsimple.transcoder.config.TranscoderRegistryKeys;
 import com.pixelsimple.transcoder.profile.Profile;
 
 /**
@@ -25,7 +28,11 @@ public abstract class TranscodeCommandBuilderApi implements TranscodeCommandBuil
 
 	protected TranscodeCommandBuilder successor;
 	
-
+	// TODO: As usual, see if this can be injected someday.
+	protected ApiConfig apiConfig = RegistryService.getRegisteredApiConfig();
+	protected TranscoderConfig transcoderConfig = (TranscoderConfig) RegistryService.getRegisteredApiConfig()
+			.getGenericRegistryEntry().getEntry(TranscoderRegistryKeys.TRANSCODER_CONFIG);
+	
 	/* (non-Javadoc)
 	 * @see com.pixelsimple.transcoder.command.TranscodeCommandBuilder#setSuccessor(com.pixelsimple.transcoder.command.TranscodeCommandBuilder)
 	 */
@@ -42,7 +49,7 @@ public abstract class TranscodeCommandBuilderApi implements TranscodeCommandBuil
 		Profile profile = spec.getTargetProfile();
 		String customProfileCommandHandler = profile.getCustomProfileCommandHandler();
 		
-		if (!StringUtils.isNullOrEmpty(customProfileCommandHandler) && !this.getClass().getName().equals(customProfileCommandHandler)) {
+		if (!this.getClass().getName().equals(customProfileCommandHandler)) {
 			if (this.successor != null) {
 				LOG.debug("buildCommand::Cannot handle building the command, delegating to the successor for profile - {}",
 					spec.getTargetProfile());

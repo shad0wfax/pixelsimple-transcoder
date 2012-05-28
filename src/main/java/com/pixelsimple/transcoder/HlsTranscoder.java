@@ -13,6 +13,7 @@ import com.pixelsimple.commons.command.CommandRunnerFactory;
 import com.pixelsimple.commons.media.Container;
 import com.pixelsimple.commons.util.OSUtils;
 import com.pixelsimple.commons.util.StringUtils;
+import com.pixelsimple.commons.util.UrlUtils;
 import com.pixelsimple.transcoder.exception.TranscoderException;
 
 /**
@@ -56,38 +57,50 @@ public class HlsTranscoder extends AbstractTranscoder {
 	// 		check_interval_in_sec
 	// 		hls_transcode_complete_file
 	// 		segment_time
+	// 		ffprobe path - to compute the actual segment time.
 	// 		base_uri (only optional param)
 	private CommandRequest buildM3u8PlaylistCommand(TranscoderOutputSpec spec, String hlsTranscodeCompleteFilePath) {
-		String hldMediaDir = OSUtils.appendFolderSeparator(spec.getOutputFileDir()); 
+		String hlsMediaDir = OSUtils.appendFolderSeparator(spec.getOutputFileDir()); 
 		String playlistFile = spec.getHlsTranscoderOutputSpec().getComputedPlaylistFileWithPath();
 		String segmentFileExtension = spec.getTargetProfile().getContainerFormat();
 		String playlistCheckTime = "" + spec.getHlsTranscoderOutputSpec().getPlaylistCreationCheckTimeInSec();
 		String segmentTime = "" + spec.getHlsTranscoderOutputSpec().getSegmentTime();
+		String ffprobePath = this.apiConfig.getFfprobeConfig().getExecutablePath();
 		String baseUri = spec.getHlsTranscoderOutputSpec().getPlaylistBaseUri();
 		
 		if (StringUtils.isNullOrEmpty(playlistCheckTime)) playlistCheckTime = segmentTime;
 		if (StringUtils.isNullOrEmpty(baseUri)) baseUri = "";
+		if (StringUtils.isNullOrEmpty(segmentFileExtension)) segmentFileExtension = "ts"; //.ts is the std.
 		
-		// Need to do it due to the batch script behavior: Refer the MS article: http://support.microsoft.com/kb/71247
-		baseUri = quoteBaseUriForWindows(baseUri);
+		// Concatenate the base uri with the media directory encoded for spaces. This will be the playlist entry's base
+		// part. The script will append the segment file names and write it out to playlist file.
+		String completeBaseUri = baseUri + UrlUtils.encodeSpaces(hlsMediaDir);
+		
+		// Need to quote since the batch script called with arguments that contain "=" character will be split.
+		// Refer the MS article: http://support.microsoft.com/kb/71247
+		// Windows batch script will then strip the double quotes.
+		completeBaseUri = quoteParamsForWindows(completeBaseUri);
+		// There is a crappy bug in commons-exec v1.1 where if a string contains space and ends with '\', on adding it 
+		// as argument (addArgument) it adds an additional \ after quoting. This is causing the playlist generator script
+		// to break when media directory has two trailing \. This can be fixed if we quote it ourselves. 
+		// The script accepts quoted inputs as well.
+		hlsMediaDir = quoteParamsForWindows(hlsMediaDir); 
 		
 		CommandRequest req = new CommandRequest();
 		req.addCommand(this.transcoderConfig.getHlsPlaylistGeneratorPath(), 0);
-		req.addArgument(hldMediaDir).addArgument(playlistFile).addArgument(segmentFileExtension)
+		req.addArgument(hlsMediaDir).addArgument(playlistFile).addArgument(segmentFileExtension)
 			.addArgument(playlistCheckTime).addArgument(hlsTranscodeCompleteFilePath).addArgument(segmentTime)
-			.addArgument(baseUri);
+			.addArgument(ffprobePath).addArgument(completeBaseUri);
 		
 		return req;
 	}
 
-	// NEed to quote since the batch script called with arguments that contain "=" character will be split.
-	// Refer the MS article: http://support.microsoft.com/kb/71247
-	// Our batch script will then strip the double quotes.
-	private String quoteBaseUriForWindows(String baseUri) {
+	private String quoteParamsForWindows(String param) {
 		if (!OSUtils.isWindows())
-			return baseUri;
+			return param;
 		
-		return "\"" + baseUri + "\"";
+		return "\"" + param + "\"";
+		
 	}
 
 	/**
@@ -95,7 +108,7 @@ public class HlsTranscoder extends AbstractTranscoder {
 	 * @return
 	 */
 	private String getHlsTranscodeCompleteFilePath(TranscoderOutputSpec spec) {
-		return spec.getOutputFileDir() + OSUtils.folderSeparator() + this.transcoderConfig.getHlsTranscodeCompleteFile();
+		return OSUtils.appendFolderSeparator(spec.getOutputFileDir()) + this.transcoderConfig.getHlsTranscodeCompleteFile();
 	}
 
 

@@ -25,7 +25,7 @@ public class TranscoderConfigTest {
 
 	@Before
 	public void setUp() throws Exception {
-		// inti with transcoder initializer
+		// init with transcoder initializer
 		TestAppInitializer.bootStrapRegistryForTesting(new TranscoderInitializer());
 	}
 	
@@ -33,12 +33,16 @@ public class TranscoderConfigTest {
 	public void initWithValidValues() {
 		TranscoderConfig transcoderConfig = (TranscoderConfig) RegistryService.getGenericRegistryEntry().getEntry(
 					TranscoderRegistryKeys.TRANSCODER_CONFIG);
-		Map<String, String> configs =  RegistryService.getRegisteredApiConfig().getEnvironment().getApplicationConfiguratations();
+		Map<String, String> configs =  RegistryService.getRegisteredApiConfig().getEnvironment().getImmutableApplicationConfiguratations();
 		
 		Assert.assertEquals(transcoderConfig.getHlsTranscodeCompleteFile(), "pixelsimple_hls_transcode.complete");
 		Assert.assertEquals(transcoderConfig.getHlsPlaylistGeneratorPath(),  
 				configs.get(BootstrapInitializer.JAVA_SYS_ARG_APP_HOME_DIR) + OSUtils.folderSeparator() + configs.get("ffmpegPath"));
 		Assert.assertEquals(transcoderConfig.getHlsFileSegmentPattern(), "%06d");
+		Assert.assertEquals(transcoderConfig.getNinjaAudioBitratePattern(), "\\$ab");
+		Assert.assertEquals(transcoderConfig.getNinjaVideoBitratePattern(), "\\$vb");
+		Assert.assertEquals(transcoderConfig.getNinjaInputFilePattern(), "\\$if");
+		Assert.assertEquals(transcoderConfig.getNinjaOutputFilePattern(), "\\$of");
 	}
 
 }

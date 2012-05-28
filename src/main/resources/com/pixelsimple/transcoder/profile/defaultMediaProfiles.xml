@@ -58,17 +58,20 @@
 				A ninja level of proficiency is required to use this. This is an optional tag and if supplied it will ignore a lot of other tags.
 				By default this will use the FfmpegNinjaTranscodeCommandBuilder (need not be specified as part of customProfileCommandHandler,
 				 but this can be overriden by developers wanting to implement their own handlers by specifying it in customProfileCommandHandler.	
-				Currently supported replacement tokens: (the tokens can be overriden in the app configuration file) 				
-				$transcode_cmd -> Will replace with complete path of ffmpeg. Custom handlers can replace any command they want (alternative to ffmpeg?).
+				The exit value of this command is assumed to be 0 (success). The command would fail if the exit value is something else. The  customProfileCommandHandler
+				can always implement its own scheme for exit value.				
+				Currently supported replacement tokens: (the tokens can be overriden in the app configuration file).
+				$transcode_cmd (ex: $ffmpeg)-> Will replace with complete path of ffmpeg. Custom handlers can replace any command they want (alternative to ffmpeg?).
 				$if -> Will replace with the input file. (optional)
-				$of - will replace with output file. (optional)
+				$of - will replace with output file. (optional). The output fileExtension tag needs to be supplied though. 
 				$vb - will replace with video bit rate (optional)
 				$ab - will replace with audio bit rate (optional)
 				
-				Ex1: $transcode_cmd -i $if -f mp4 c:v libx264 c:a mp3 %of 
-				Ex2: $transcode_cmd -i $if -f mp4 c:v libx264 -b:v %vb c:a mp3 -b:a %ab %of  
-				Ex3: $transcode_cmd -i c:\videos\sample.flv -f mp4 c:v libx264 -b:v 800k c:a libmp3lame -b:a %ab c:\videos\transcoded\out.m4v  
-				Ex4: $transcode_cmd -i /home/audio/sample.m4a c:a libmp3lame -b:a 96k /home/audio/transcoded/out.mp3
+				Ex1: $ffmpeg -i $if -f mp4 c:v libx264 c:a mp3 $of 
+				Ex2: $ffmpeg -i $if -f mp4 c:v libx264 -b:v $vb c:a mp3 -b:a $ab $of  
+				Ex3: $ffmpeg -i c:\videos\sample.flv -f mp4 c:v libx264 -b:v 800k c:a libmp3lame -b:a $ab c:\videos\transcoded\out.m4v  
+				Ex4: $my_own_transcode_cmd -i /home/audio/sample.m4a c:a libmp3lame -b:a 96k /home/audio/transcoded/out.mp3
+						(In this case a customProfileCommandHandler needs to be written that knows how to replace $my_own_transcode_cmd accordingly)
 				
 				The values for $vb and $ab should be supplied in the videoBitRate and audioBitRate tags if needed for replacement.
 				- -> 			
