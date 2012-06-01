@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.pixelsimple.appcore.ApiConfig;
-import com.pixelsimple.appcore.registry.MapRegistry;
 import com.pixelsimple.appcore.registry.RegistryService;
 import com.pixelsimple.commons.test.appcore.init.TestAppInitializer;
 import com.pixelsimple.transcoder.Handle;
@@ -32,7 +31,7 @@ public class TranscoderQueueTest {
 		ApiConfig apiConfig = RegistryService.getRegisteredApiConfig();
 		TranscoderInitializer initializer = new TranscoderInitializer();
 		try {
-			initializer.initialize(MapRegistry.INSTANCE, apiConfig);
+			initializer.initialize(apiConfig);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

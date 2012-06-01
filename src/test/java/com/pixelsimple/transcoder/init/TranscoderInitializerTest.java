@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import com.pixelsimple.appcore.ApiConfig;
 import com.pixelsimple.appcore.registry.GenericRegistryEntry;
-import com.pixelsimple.appcore.registry.MapRegistry;
 import com.pixelsimple.appcore.registry.RegistryService;
 import com.pixelsimple.commons.test.appcore.init.TestAppInitializer;
 import com.pixelsimple.transcoder.Handle;
@@ -46,7 +45,7 @@ public class TranscoderInitializerTest {
 		GenericRegistryEntry entry =  RegistryService.getGenericRegistryEntry();
 
 		try {
-			initializer.initialize(MapRegistry.INSTANCE, apiConfig);
+			initializer.initialize(apiConfig);
 			Map<String, Profile> profiles = (Map<String, Profile>) entry.getEntry(TranscoderRegistryKeys.MEDIA_PROFILES);
 			TranscodeCommandBuilderChain chain = (TranscodeCommandBuilderChain) entry.getEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN);
 			Map<Handle, TranscodeStatus> queue = (Map<Handle, TranscodeStatus>) entry.getEntry(TranscoderRegistryKeys.TRANSCODER_QUEUE);
@@ -71,14 +70,14 @@ public class TranscoderInitializerTest {
 		GenericRegistryEntry entry =  RegistryService.getGenericRegistryEntry();
 
 		try {
-			initializer.initialize(MapRegistry.INSTANCE, apiConfig);
+			initializer.initialize(apiConfig);
 			Map<String, Profile> profiles = (Map<String, Profile>) entry.getEntry(TranscoderRegistryKeys.MEDIA_PROFILES);
 			TranscodeCommandBuilderChain chain = (TranscodeCommandBuilderChain) entry.getEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN);
 
 			Assert.assertNotNull(profiles);
 			Assert.assertNotNull(chain);
 			
-			initializer.deinitialize(MapRegistry.INSTANCE, apiConfig);
+			initializer.deinitialize(apiConfig);
 			profiles = (Map<String, Profile>) entry.getEntry(TranscoderRegistryKeys.MEDIA_PROFILES);
 			chain = (TranscodeCommandBuilderChain) entry.getEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN);
 

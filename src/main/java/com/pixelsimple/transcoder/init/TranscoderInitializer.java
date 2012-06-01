@@ -14,7 +14,6 @@ import com.pixelsimple.appcore.ApiConfig;
 import com.pixelsimple.appcore.config.Environment;
 import com.pixelsimple.appcore.init.Initializable;
 import com.pixelsimple.appcore.registry.GenericRegistryEntry;
-import com.pixelsimple.appcore.registry.Registry;
 import com.pixelsimple.commons.util.StringUtils;
 import com.pixelsimple.transcoder.Handle;
 import com.pixelsimple.transcoder.TranscodeStatus;
@@ -47,27 +46,27 @@ public class TranscoderInitializer implements Initializable {
 	 * @see com.pixelsimple.appcore.init.Initializable#initialize(com.pixelsimple.appcore.Registry)
 	 */
 	@Override
-	public void initialize(Registry registry, ApiConfig apiConfig) throws Exception {
-		this.initTranscoderConfig(registry, apiConfig);
+	public void initialize(ApiConfig apiConfig) throws Exception {
+		this.initTranscoderConfig(apiConfig);
 		
-		Map<String, Profile> profiles = this.initMediaProfiles(registry, apiConfig);
-		this.initTranscodeCommandChain(registry, apiConfig, profiles);
+		Map<String, Profile> profiles = this.initMediaProfiles(apiConfig);
+		this.initTranscodeCommandChain(apiConfig, profiles);
 		
-		this.initTranscoderQueue(registry, apiConfig);
+		this.initTranscoderQueue(apiConfig);
 	}
 
 	/* (non-Javadoc)
 	 * @see com.pixelsimple.appcore.init.Initializable#deinitialize(com.pixelsimple.appcore.Registry)
 	 */
 	@Override
-	public void deinitialize(Registry registry, ApiConfig apiConfig) throws Exception {
+	public void deinitialize(ApiConfig apiConfig) throws Exception {
 		GenericRegistryEntry genericRegistryEntry = apiConfig.getGenericRegistryEntry();
 		genericRegistryEntry.removeEntry(TranscoderRegistryKeys.MEDIA_PROFILES);
 		genericRegistryEntry.removeEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN);
 		genericRegistryEntry.removeEntry(TranscoderRegistryKeys.TRANSCODER_QUEUE);
 	}
 
-	private void initTranscoderConfig(Registry registry, ApiConfig apiConfig) {
+	private void initTranscoderConfig(ApiConfig apiConfig) {
 		Environment env = apiConfig.getEnvironment();
 		Map<String, String> configMap = env.getImmutableApplicationConfiguratations();
 		TranscoderConfig tConfig = new TranscoderConfig();
@@ -83,7 +82,7 @@ public class TranscoderInitializer implements Initializable {
 		genericRegistryEntry.addEntry(TranscoderRegistryKeys.TRANSCODER_CONFIG, tConfig);
 	}
 
-	private Map<String, Profile> initMediaProfiles(Registry registry, ApiConfig apiConfig) throws Exception {
+	private Map<String, Profile> initMediaProfiles(ApiConfig apiConfig) throws Exception {
 		Map<String, Profile> profiles = ProfileBuilder.parseDefaultMediaProfiles();
 		
 		// Load these objects up in registry
@@ -94,7 +93,7 @@ public class TranscoderInitializer implements Initializable {
 		return profiles;
 	}
 
-	private void initTranscodeCommandChain(Registry registry, ApiConfig apiConfig, Map<String, Profile> profilesMap) 
+	private void initTranscodeCommandChain(ApiConfig apiConfig, Map<String, Profile> profilesMap) 
 			throws TranscoderException {
 		// Algo: Create the set of objects that are part of transcoder chain. 
 		// TODO: Future - iterate the profiles and find all the custom Profile.ProfileType handlers and add them to 
@@ -129,7 +128,7 @@ public class TranscoderInitializer implements Initializable {
 	/**
 	 * @param registry
 	 */
-	private void initTranscoderQueue(Registry registry, ApiConfig apiConfig) {
+	private void initTranscoderQueue(ApiConfig apiConfig) {
 		Map<Handle, TranscodeStatus> transcoderQueue = new HashMap<Handle, TranscodeStatus>(8);
 		GenericRegistryEntry genericRegistryEntry = apiConfig.getGenericRegistryEntry();
 		genericRegistryEntry.addEntry(TranscoderRegistryKeys.TRANSCODER_QUEUE, transcoderQueue);		
