@@ -48,7 +48,7 @@ public class FfmpegHLSTranscodeCommandBuilder extends AbstractFfmpegTranscodeCom
 		request.addArgument("-map").addArgument("0");
 		
 		if (isValidSetting(profile.getFileFormat())) {
-			TranscoderConfig transcoderConfig = (TranscoderConfig) apiConfig.getGenericRegistryEntry().getEntry(
+			TranscoderConfig transcoderConfig = apiConfig.getGenericRegistryEntry().getEntry(
 					TranscoderRegistryKeys.TRANSCODER_CONFIG);
 			
 			// This will be a temp file, the actual playlist file is created by the scripts.

@@ -25,14 +25,14 @@ public abstract class AbstractTranscoder {
 	protected static final Logger LOG = LoggerFactory.getLogger(AbstractTranscoder.class);
 	// TODO: As usual, see if this can be injected someday.
 	protected ApiConfig apiConfig = RegistryService.getRegisteredApiConfig();
-	protected TranscoderConfig transcoderConfig = (TranscoderConfig) RegistryService.getGenericRegistryEntry().getEntry(
+	protected TranscoderConfig transcoderConfig = RegistryService.getGenericRegistryEntry().getEntry(
 					TranscoderRegistryKeys.TRANSCODER_CONFIG);
 	
 	private TranscodeCommandBuilderChain chain;
 	
 	public AbstractTranscoder() {
 		GenericRegistryEntry entry = RegistryService.getGenericRegistryEntry();
-		chain = (TranscodeCommandBuilderChain) entry.getEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN);
+		chain = entry.getEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN);
 		LOG.debug("transcode()::Registered chain : {} ", chain);
 	}
 	

@@ -3,13 +3,15 @@
  */
 package com.pixelsimple.transcoder;
 
+import com.pixelsimple.appcore.queue.Queueable;
+
 
 /**
  *
  * @author Akshay Sharma
  * Feb 20, 2012
  */
-public class Handle {
+public class Handle implements Queueable {
 
 	private String handleId;
 	private String outputFileCreated;

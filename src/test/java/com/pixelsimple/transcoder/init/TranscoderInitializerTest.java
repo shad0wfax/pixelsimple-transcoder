@@ -14,8 +14,6 @@ import com.pixelsimple.appcore.ApiConfig;
 import com.pixelsimple.appcore.registry.GenericRegistryEntry;
 import com.pixelsimple.appcore.registry.RegistryService;
 import com.pixelsimple.commons.test.appcore.init.TestAppInitializer;
-import com.pixelsimple.transcoder.Handle;
-import com.pixelsimple.transcoder.TranscodeStatus;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilderChain;
 import com.pixelsimple.transcoder.config.TranscoderRegistryKeys;
 import com.pixelsimple.transcoder.profile.Profile;
@@ -46,13 +44,11 @@ public class TranscoderInitializerTest {
 
 		try {
 			initializer.initialize(apiConfig);
-			Map<String, Profile> profiles = (Map<String, Profile>) entry.getEntry(TranscoderRegistryKeys.MEDIA_PROFILES);
+			Map<String, Profile> profiles = entry.getEntry(TranscoderRegistryKeys.MEDIA_PROFILES);
 			TranscodeCommandBuilderChain chain = (TranscodeCommandBuilderChain) entry.getEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN);
-			Map<Handle, TranscodeStatus> queue = (Map<Handle, TranscodeStatus>) entry.getEntry(TranscoderRegistryKeys.TRANSCODER_QUEUE);
 
 			Assert.assertNotNull(profiles);
 			Assert.assertNotNull(chain);
-			Assert.assertNotNull(queue);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -71,15 +67,15 @@ public class TranscoderInitializerTest {
 
 		try {
 			initializer.initialize(apiConfig);
-			Map<String, Profile> profiles = (Map<String, Profile>) entry.getEntry(TranscoderRegistryKeys.MEDIA_PROFILES);
-			TranscodeCommandBuilderChain chain = (TranscodeCommandBuilderChain) entry.getEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN);
+			Map<String, Profile> profiles = entry.getEntry(TranscoderRegistryKeys.MEDIA_PROFILES);
+			TranscodeCommandBuilderChain chain = entry.getEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN);
 
 			Assert.assertNotNull(profiles);
 			Assert.assertNotNull(chain);
 			
 			initializer.deinitialize(apiConfig);
-			profiles = (Map<String, Profile>) entry.getEntry(TranscoderRegistryKeys.MEDIA_PROFILES);
-			chain = (TranscodeCommandBuilderChain) entry.getEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN);
+			profiles = entry.getEntry(TranscoderRegistryKeys.MEDIA_PROFILES);
+			chain = entry.getEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN);
 
 			Assert.assertNull(profiles);
 			Assert.assertNull(chain);

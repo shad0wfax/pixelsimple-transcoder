@@ -14,8 +14,7 @@ public enum TranscoderRegistryKeys implements GenericRegistryEntryKey {
 
 	TRANSCODER_CONFIG,
 	MEDIA_PROFILES,
-	TRANSCODE_COMMAND_CHAIN,
-	TRANSCODER_QUEUE,;
+	TRANSCODE_COMMAND_CHAIN;
 
 	/* (non-Javadoc)
 	 * @see com.pixelsimple.appcore.registry.GenericRegistryEntryKey#getUniqueModuleName()

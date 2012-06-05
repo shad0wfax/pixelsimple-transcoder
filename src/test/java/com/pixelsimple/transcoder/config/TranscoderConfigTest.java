@@ -31,7 +31,7 @@ public class TranscoderConfigTest {
 	
 	@Test
 	public void initWithValidValues() {
-		TranscoderConfig transcoderConfig = (TranscoderConfig) RegistryService.getGenericRegistryEntry().getEntry(
+		TranscoderConfig transcoderConfig = RegistryService.getGenericRegistryEntry().getEntry(
 					TranscoderRegistryKeys.TRANSCODER_CONFIG);
 		Map<String, String> configs =  RegistryService.getRegisteredApiConfig().getEnvironment().getImmutableApplicationConfiguratations();
 		

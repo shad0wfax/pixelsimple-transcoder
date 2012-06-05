@@ -4,7 +4,6 @@
 package com.pixelsimple.transcoder.init;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import com.pixelsimple.appcore.config.Environment;
 import com.pixelsimple.appcore.init.Initializable;
 import com.pixelsimple.appcore.registry.GenericRegistryEntry;
 import com.pixelsimple.commons.util.StringUtils;
-import com.pixelsimple.transcoder.Handle;
-import com.pixelsimple.transcoder.TranscodeStatus;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilder;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilderChain;
 import com.pixelsimple.transcoder.command.ffmpeg.FfmpegAudioTranscodeCommandBuilder;
@@ -51,8 +48,6 @@ public class TranscoderInitializer implements Initializable {
 		
 		Map<String, Profile> profiles = this.initMediaProfiles(apiConfig);
 		this.initTranscodeCommandChain(apiConfig, profiles);
-		
-		this.initTranscoderQueue(apiConfig);
 	}
 
 	/* (non-Javadoc)
@@ -63,7 +58,6 @@ public class TranscoderInitializer implements Initializable {
 		GenericRegistryEntry genericRegistryEntry = apiConfig.getGenericRegistryEntry();
 		genericRegistryEntry.removeEntry(TranscoderRegistryKeys.MEDIA_PROFILES);
 		genericRegistryEntry.removeEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN);
-		genericRegistryEntry.removeEntry(TranscoderRegistryKeys.TRANSCODER_QUEUE);
 	}
 
 	private void initTranscoderConfig(ApiConfig apiConfig) {
@@ -123,16 +117,6 @@ public class TranscoderInitializer implements Initializable {
 		
 		GenericRegistryEntry genericRegistryEntry = apiConfig.getGenericRegistryEntry();
 		genericRegistryEntry.addEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN, chain);		
-	}
-
-	/**
-	 * @param registry
-	 */
-	private void initTranscoderQueue(ApiConfig apiConfig) {
-		Map<Handle, TranscodeStatus> transcoderQueue = new HashMap<Handle, TranscodeStatus>(8);
-		GenericRegistryEntry genericRegistryEntry = apiConfig.getGenericRegistryEntry();
-		genericRegistryEntry.addEntry(TranscoderRegistryKeys.TRANSCODER_QUEUE, transcoderQueue);		
-		LOG.debug("initTranscoderQueue initing the Queue}");
 	}
 
 }

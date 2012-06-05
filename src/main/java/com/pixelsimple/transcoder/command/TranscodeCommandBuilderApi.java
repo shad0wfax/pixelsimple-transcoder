@@ -30,7 +30,7 @@ public abstract class TranscodeCommandBuilderApi implements TranscodeCommandBuil
 	
 	// TODO: As usual, see if this can be injected someday.
 	protected ApiConfig apiConfig = RegistryService.getRegisteredApiConfig();
-	protected TranscoderConfig transcoderConfig = (TranscoderConfig) RegistryService.getRegisteredApiConfig()
+	protected TranscoderConfig transcoderConfig = RegistryService.getRegisteredApiConfig()
 			.getGenericRegistryEntry().getEntry(TranscoderRegistryKeys.TRANSCODER_CONFIG);
 	
 	/* (non-Javadoc)
