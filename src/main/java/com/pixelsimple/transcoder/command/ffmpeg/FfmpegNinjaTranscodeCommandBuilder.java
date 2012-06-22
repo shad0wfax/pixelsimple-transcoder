@@ -44,7 +44,7 @@ public class FfmpegNinjaTranscodeCommandBuilder extends TranscodeCommandBuilderA
 		// $ab - will replace with audio bit rate (optional)
 		CommandRequest req = new CommandRequest();
 		String ffmpegPath = apiConfig.getFfmpegConfig().getExecutablePath();
-		String inputFile = quoteIfContainsSpace(inputMedia.getFilePathWithName());
+		String inputFile = quoteIfContainsSpace(inputMedia.getMediaResource().getResourceAsString());
 		String outputFile = null;
 		if (profile.isHlsProfile()) {
 			outputFile = spec.getHlsTranscoderOutputSpec().getComputedPlaylistFileWithPath();

@@ -11,6 +11,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pixelsimple.appcore.Resource;
+import com.pixelsimple.appcore.Resource.RESOURCE_TYPE;
 import com.pixelsimple.commons.command.CommandRequest;
 import com.pixelsimple.commons.media.Container;
 import com.pixelsimple.commons.media.MediaInspector;
@@ -45,14 +47,15 @@ public class FfmpegNinjaTranscodeCommandBuilderTest {
 	@Test
 	public void buildTranscodeCommandValidCommand() {
 		String mediaPath = TestAppInitializer.TEST_ARTIFACT_DIR + "video1.mov";
+		Resource res = new Resource(mediaPath, RESOURCE_TYPE.FILE); 
+		Resource outDir = new Resource(TestAppInitializer.TEST_ARTIFACT_DIR, RESOURCE_TYPE.DIRECTORY);
 		
 		if (TestUtil.fileExists(mediaPath)) {
 			MediaInspector inspector = new MediaInspector();
 			try {
-				Container container = inspector.createMediaContainer(mediaPath);
+				Container container = inspector.createMediaContainer(res);
 				Profile targetProfile = ProfileBuilder.buildProfile(ProfileUtilTest.validVideoXmlNodeWithNinjaCommand());
-				TranscoderOutputSpec spec = new TranscoderOutputSpec(targetProfile, TestAppInitializer.TEST_ARTIFACT_DIR, 
-						"transcoded_video1");
+				TranscoderOutputSpec spec = new TranscoderOutputSpec(targetProfile, outDir, "transcoded_video1");
 				
 				FfmpegNinjaTranscodeCommandBuilder builder = new FfmpegNinjaTranscodeCommandBuilder();
 				CommandRequest req = builder.buildTranscodeCommand(container, spec);
@@ -79,14 +82,15 @@ public class FfmpegNinjaTranscodeCommandBuilderTest {
 	@Test
 	public void buildTranscodeCommandValidCommandLessReplacement() {
 		String mediaPath = TestAppInitializer.TEST_ARTIFACT_DIR + "video1.mov";
+		Resource res = new Resource(mediaPath, RESOURCE_TYPE.FILE); 
+		Resource outDir = new Resource(TestAppInitializer.TEST_ARTIFACT_DIR, RESOURCE_TYPE.DIRECTORY);
 		
 		if (TestUtil.fileExists(mediaPath)) {
 			MediaInspector inspector = new MediaInspector();
 			try {
-				Container container = inspector.createMediaContainer(mediaPath);
+				Container container = inspector.createMediaContainer(res);
 				Profile targetProfile = ProfileBuilder.buildProfile(ProfileUtilTest.validVideoXmlNodeWithNinjaCommand2());
-				TranscoderOutputSpec spec = new TranscoderOutputSpec(targetProfile, TestAppInitializer.TEST_ARTIFACT_DIR, 
-						"transcoded_video1");
+				TranscoderOutputSpec spec = new TranscoderOutputSpec(targetProfile, outDir, "transcoded_video1");
 				
 				FfmpegNinjaTranscodeCommandBuilder builder = new FfmpegNinjaTranscodeCommandBuilder();
 				CommandRequest req = builder.buildTranscodeCommand(container, spec);

@@ -75,7 +75,7 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 	protected void buildVideoTranscodeCommand(Container inputMedia, Profile profile, CommandRequest request, boolean skipFileFormat) {
 		// Keep it simple - gunning for this :-)
 		// ffmpeg -y -i input_file [output_file_options: like bitrate,codecs,format etc] output_file
-		String videoInputPath = inputMedia.getFilePathWithName(); 
+		String videoInputPath = inputMedia.getMediaResource().getResourceAsString(); 
 		request.addArgument("-y").addArgument("-i").addArgument(videoInputPath);
 
 		// Note: Having problems with ffmpeg sometimes when -f is container format name. Ex: wmv. Let it auto-detect/use fileFormat
@@ -106,7 +106,7 @@ public abstract class AbstractFfmpegTranscodeCommandBuilder implements Transcode
 			Profile profile, CommandRequest request) {
 		// Keep it simple - gunning for this :-)
 		// ffmpeg -y -i input_file [output_file_options: like bitrate,codecs,format etc] output_file
-		String videoInputPath = inputMedia.getFilePathWithName(); 
+		String videoInputPath = inputMedia.getMediaResource().getResourceAsString(); 
 		request.addArgument("-y").addArgument("-i").addArgument(videoInputPath);
 
 		// Note: Having problems with ffmpeg sometimes when -f is container format name. Ex: wmv. Let it auto-detect/use fileFormat

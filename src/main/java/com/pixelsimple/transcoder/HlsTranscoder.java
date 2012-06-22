@@ -60,7 +60,7 @@ public class HlsTranscoder extends AbstractTranscoder {
 	// 		ffprobe path - to compute the actual segment time.
 	// 		base_uri (only optional param)
 	private CommandRequest buildM3u8PlaylistCommand(TranscoderOutputSpec spec, String hlsTranscodeCompleteFilePath) {
-		String hlsMediaDir = OSUtils.appendFolderSeparator(spec.getOutputFileDir()); 
+		String hlsMediaDir = OSUtils.appendFolderSeparator(spec.getOutputFileDir().getResourceAsString()); 
 		String playlistFile = spec.getHlsTranscoderOutputSpec().getComputedPlaylistFileWithPath();
 		String segmentFileExtension = spec.getTargetProfile().getContainerFormat();
 		String playlistCheckTime = "" + spec.getHlsTranscoderOutputSpec().getPlaylistCreationCheckTimeInSec();
@@ -108,7 +108,7 @@ public class HlsTranscoder extends AbstractTranscoder {
 	 * @return
 	 */
 	private String getHlsTranscodeCompleteFilePath(TranscoderOutputSpec spec) {
-		return OSUtils.appendFolderSeparator(spec.getOutputFileDir()) + this.transcoderConfig.getHlsTranscodeCompleteFile();
+		return OSUtils.appendFolderSeparator(spec.getOutputFileDir().getResourceAsString()) + this.transcoderConfig.getHlsTranscodeCompleteFile();
 	}
 
 

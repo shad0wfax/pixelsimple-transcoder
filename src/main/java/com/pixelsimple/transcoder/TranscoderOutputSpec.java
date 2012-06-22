@@ -3,6 +3,8 @@
  */
 package com.pixelsimple.transcoder;
 
+import com.pixelsimple.appcore.Resource;
+import com.pixelsimple.appcore.Resource.RESOURCE_TYPE;
 import com.pixelsimple.commons.util.OSUtils;
 import com.pixelsimple.commons.util.StringUtils;
 import com.pixelsimple.commons.util.UrlUtils;
@@ -16,14 +18,20 @@ import com.pixelsimple.transcoder.profile.Profile;
  */
 public class TranscoderOutputSpec {
 	private Profile targetProfile;
-	private String outputFileDir;
+	
+	// The spec says that we have to write the output file to a file system (type DIRECTORY). 
+	// Writing to FTP/WebDAV etc should be supported as a support job using com.pixelsimple.commons.command.callback.AsyncCallbackHandler
+	private Resource outputFileDir;
 	// Extension automatically gets decided.
 	private String outputFileNameWithoutExtension;
 	private String computedOutputFile;
 	// TODO: do we need eagar load when most transcodes are non-hls? Waste of space.
 	private HlsTranscoderOutputSpec hlsTranscoderOutputSpec = new HlsTranscoderOutputSpec();
 	
-	public TranscoderOutputSpec(Profile targetProfile, String outputFileDir, String outputFileNameWithoutExtension) {
+	public TranscoderOutputSpec(Profile targetProfile, Resource outputFileDir, String outputFileNameWithoutExtension) {
+		if (outputFileDir.getResourceType() != RESOURCE_TYPE.DIRECTORY)
+			throw new IllegalArgumentException("The transcoding output can be placed only in a file directory");
+		
 		this.targetProfile = targetProfile;
 		this.outputFileDir = outputFileDir;
 		this.outputFileNameWithoutExtension = outputFileNameWithoutExtension;
@@ -84,14 +92,14 @@ public class TranscoderOutputSpec {
 	 * @return the targetProfile
 	 */
 	public Profile getTargetProfile() {
-		return targetProfile;
+		return this.targetProfile;
 	}
 	
 	/**
 	 * @return the outputFileNameWithPath
 	 */
-	public String getOutputFileDir() {
-		return outputFileDir;
+	public Resource getOutputFileDir() {
+		return this.outputFileDir;
 	}
 
 	/**
@@ -106,7 +114,7 @@ public class TranscoderOutputSpec {
 		if (StringUtils.isNullOrEmpty(computedOutputFile)) {
 			String outputFileNameWithExtension = this.getOutputFileNameWithoutExtension() + "." + this.targetProfile.getFileExtension();
 			// Append to the directory (after ensuring it is correctly ended with / or \)
-			this.computedOutputFile = OSUtils.appendFolderSeparator(this.getOutputFileDir()) + outputFileNameWithExtension;
+			this.computedOutputFile = OSUtils.appendFolderSeparator(this.getOutputFileDir().getResourceAsString()) + outputFileNameWithExtension;
 		}
 		return this.computedOutputFile;
 	}

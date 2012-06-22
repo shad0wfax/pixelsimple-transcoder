@@ -57,7 +57,7 @@ public class TranscoderConfig {
 
 	private void validateFile(String fullExecutablePath) {
 		File file = new File(fullExecutablePath);
-		Assert.isTrue(file.isFile(), "Looks like the ffprobe path is not valid::" + fullExecutablePath);
+		Assert.isTrue(file.isFile(), "Looks like the the file provided in path is not valid::" + fullExecutablePath);
 
 		file = null; // gc it hopefully
 	}
