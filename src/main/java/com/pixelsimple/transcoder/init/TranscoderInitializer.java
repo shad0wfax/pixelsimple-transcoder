@@ -10,9 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pixelsimple.appcore.ApiConfig;
-import com.pixelsimple.appcore.config.Environment;
-import com.pixelsimple.appcore.init.Initializable;
+import com.pixelsimple.appcore.init.ModuleInitializer;
 import com.pixelsimple.appcore.registry.GenericRegistryEntry;
+import com.pixelsimple.commons.util.OSUtils;
 import com.pixelsimple.commons.util.StringUtils;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilder;
 import com.pixelsimple.transcoder.command.TranscodeCommandBuilderChain;
@@ -29,8 +29,12 @@ import com.pixelsimple.transcoder.profile.ProfileBuilder;
  * @author Akshay Sharma
  * Feb 12, 2012
  */
-public class TranscoderInitializer implements Initializable {
+public class TranscoderInitializer extends ModuleInitializer {
 	private static final Logger LOG = LoggerFactory.getLogger(TranscoderInitializer.class);
+	// TODO: When linux is supported initialize it.
+	private static final String CONFIG_FILE = (OSUtils.isWindows()) ? "transcoder_config_win.properties" 
+			: "transcoder_config_mac.properties";
+	
 	private static final String APP_CONFIG_HLS_COMPLETE_FILE = "hlsTranscodeCompleteFile";
 	private static final String APP_CONFIG_HLS_PLAYLIST_GENERATOR_PATH = "hlsPlaylistGeneratorPath";
 	private static final String APP_CONFIG_HLS_FILE_SEGMENT_PATTERN = "hlsFileSegmentPattern";
@@ -38,12 +42,16 @@ public class TranscoderInitializer implements Initializable {
 	private static final String TRANSCODER_NINJA_OUTPUT_FILE_PATTERN = "transcoderNinjaOutputFilePattern";
 	private static final String TRANSCODER_NINJA_VIDEO_BITRATE_PATTERN = "transcoderNinjaVideoBitratePattern";
 	private static final String TRANSCODER_NINJA_AUDIO_BITRATE_PATTERN = "transcoderNinjaAudioBitratePattern";	
+	
+	public TranscoderInitializer() {
+		super(CONFIG_FILE);
+	}
 
 	/* (non-Javadoc)
 	 * @see com.pixelsimple.appcore.init.Initializable#initialize(com.pixelsimple.appcore.Registry)
 	 */
 	@Override
-	public void initialize(ApiConfig apiConfig) throws Exception {
+	public void doInitialize(ApiConfig apiConfig) throws Exception {
 		this.initTranscoderConfig(apiConfig);
 		
 		Map<String, Profile> profiles = this.initMediaProfiles(apiConfig);
@@ -54,23 +62,21 @@ public class TranscoderInitializer implements Initializable {
 	 * @see com.pixelsimple.appcore.init.Initializable#deinitialize(com.pixelsimple.appcore.Registry)
 	 */
 	@Override
-	public void deinitialize(ApiConfig apiConfig) throws Exception {
+	public void doDeinitialize(ApiConfig apiConfig) throws Exception {
 		GenericRegistryEntry genericRegistryEntry = apiConfig.getGenericRegistryEntry();
 		genericRegistryEntry.removeEntry(TranscoderRegistryKeys.MEDIA_PROFILES);
 		genericRegistryEntry.removeEntry(TranscoderRegistryKeys.TRANSCODE_COMMAND_CHAIN);
 	}
 
 	private void initTranscoderConfig(ApiConfig apiConfig) {
-		Environment env = apiConfig.getEnvironment();
-		Map<String, String> configMap = env.getImmutableApplicationConfiguratations();
 		TranscoderConfig tConfig = new TranscoderConfig();
-		tConfig.setHlsFileSegmentPattern(configMap.get(APP_CONFIG_HLS_FILE_SEGMENT_PATTERN));
-		tConfig.setHlsPlaylistGeneratorPath(env.getAppBasePath() + configMap.get(APP_CONFIG_HLS_PLAYLIST_GENERATOR_PATH));
-		tConfig.setHlsTranscodeCompleteFile(configMap.get(APP_CONFIG_HLS_COMPLETE_FILE));
-		tConfig.setNinjaAudioBitratePattern(configMap.get(TRANSCODER_NINJA_AUDIO_BITRATE_PATTERN));
-		tConfig.setNinjaVideoBitratePattern(configMap.get(TRANSCODER_NINJA_VIDEO_BITRATE_PATTERN));
-		tConfig.setNinjaInputFilePattern(configMap.get(TRANSCODER_NINJA_INPUT_FILE_PATTERN));
-		tConfig.setNinjaOutputFilePattern(configMap.get(TRANSCODER_NINJA_OUTPUT_FILE_PATTERN));
+		tConfig.setHlsFileSegmentPattern(this.moduleConfigurationMap.get(APP_CONFIG_HLS_FILE_SEGMENT_PATTERN));
+		tConfig.setHlsPlaylistGeneratorPath(this.moduleConfigurationMap.get(APP_CONFIG_HLS_PLAYLIST_GENERATOR_PATH));
+		tConfig.setHlsTranscodeCompleteFile(this.moduleConfigurationMap.get(APP_CONFIG_HLS_COMPLETE_FILE));
+		tConfig.setNinjaAudioBitratePattern(this.moduleConfigurationMap.get(TRANSCODER_NINJA_AUDIO_BITRATE_PATTERN));
+		tConfig.setNinjaVideoBitratePattern(this.moduleConfigurationMap.get(TRANSCODER_NINJA_VIDEO_BITRATE_PATTERN));
+		tConfig.setNinjaInputFilePattern(this.moduleConfigurationMap.get(TRANSCODER_NINJA_INPUT_FILE_PATTERN));
+		tConfig.setNinjaOutputFilePattern(this.moduleConfigurationMap.get(TRANSCODER_NINJA_OUTPUT_FILE_PATTERN));
 		
 		GenericRegistryEntry genericRegistryEntry = apiConfig.getGenericRegistryEntry();
 		genericRegistryEntry.addEntry(TranscoderRegistryKeys.TRANSCODER_CONFIG, tConfig);
@@ -87,11 +93,7 @@ public class TranscoderInitializer implements Initializable {
 		return profiles;
 	}
 
-	private void initTranscodeCommandChain(ApiConfig apiConfig, Map<String, Profile> profilesMap) 
-			throws TranscoderException {
-		// Algo: Create the set of objects that are part of transcoder chain. 
-		// TODO: Future - iterate the profiles and find all the custom Profile.ProfileType handlers and add them to 
-		// to this as chain as successors. 
+	private void initTranscodeCommandChain(ApiConfig apiConfig, Map<String, Profile> profilesMap) throws TranscoderException {
 		TranscodeCommandBuilder chainStart = new FfmpegVideoTranscodeCommandBuilder();
 		TranscodeCommandBuilderChain chain = new TranscodeCommandBuilderChain(chainStart);
 		Collection<Profile> profiles = profilesMap.values();

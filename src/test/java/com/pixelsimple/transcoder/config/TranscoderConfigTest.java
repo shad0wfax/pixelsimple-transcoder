@@ -36,8 +36,7 @@ public class TranscoderConfigTest {
 		Map<String, String> configs =  RegistryService.getRegisteredApiConfig().getEnvironment().getImmutableApplicationConfiguratations();
 		
 		Assert.assertEquals(transcoderConfig.getHlsTranscodeCompleteFile(), "pixelsimple_hls_transcode.complete");
-		Assert.assertEquals(transcoderConfig.getHlsPlaylistGeneratorPath(),  
-				configs.get(BootstrapInitializer.JAVA_SYS_ARG_APP_HOME_DIR) + OSUtils.folderSeparator() + configs.get("ffmpegPath"));
+		Assert.assertTrue(transcoderConfig.getHlsPlaylistGeneratorPath().contains("hls_playlist_generator"));
 		Assert.assertEquals(transcoderConfig.getHlsFileSegmentPattern(), "%06d");
 		Assert.assertEquals(transcoderConfig.getNinjaAudioBitratePattern(), "\\$ab");
 		Assert.assertEquals(transcoderConfig.getNinjaVideoBitratePattern(), "\\$vb");
