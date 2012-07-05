@@ -42,7 +42,7 @@ public abstract class AbstractTranscoder {
 			throw new TranscoderException("Pass a valid TranscoderOutputSpec in order to start a transcoding");
 		}
 		LOG.debug("transcode::Transcoder with inputMedia::{} \nand spec::{}", inputMedia,
-				spec.getOutputFileDir() + spec.getOutputFileNameWithoutExtension());
+				spec.getOutputFileDir().getResourceAsString() +"/" + spec.getOutputFileNameWithoutExtension());
 		
 		// TODO: validate spec?
 

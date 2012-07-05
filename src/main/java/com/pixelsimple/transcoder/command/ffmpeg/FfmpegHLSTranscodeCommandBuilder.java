@@ -61,7 +61,7 @@ public class FfmpegHLSTranscodeCommandBuilder extends AbstractFfmpegTranscodeCom
 				.addArgument("-segment_time").addArgument("" + spec.getHlsTranscoderOutputSpec().getSegmentTime())
 				.addArgument("-segment_list").addArgument(playlistFileNameForFfmpeg)
 				.addArgument("-segment_format").addArgument(spec.getHlsTranscoderOutputSpec().getSegmentFormat())
-				.addArgument(spec.getOutputFileDir() + OSUtils.folderSeparator() 
+				.addArgument(OSUtils.appendFolderSeparator(spec.getOutputFileDir().getResourceAsString()) 
 					+ spec.getHlsTranscoderOutputSpec().getSegmentFileWithoutExtension() + hlsFilePattern 
 					+ "." + profile.getContainerFormat());
 			LOG.debug("buildCommand::built command::{}", request.getCommandAsString());
