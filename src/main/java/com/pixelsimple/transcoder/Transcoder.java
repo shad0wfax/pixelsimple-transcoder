@@ -25,7 +25,7 @@ public class Transcoder extends AbstractTranscoder {
 		Handle handle = this.buildHandle(spec);
 		CommandRequest commandRequest = this.buildCommand(inputMedia, spec);
 		
-		CommandRunner runner = CommandRunnerFactory.newAsyncCommandRunner(new TranscoderCallbackHandler(handle));
+		CommandRunner runner = CommandRunnerFactory.newAsyncCommandRunner(new TranscoderCallbackHandler(handle), true);
 		runner.runCommand(commandRequest, new CommandResponse());
 		
 		LOG.debug("transcode::requested transcoding in async mode. Handle returned - {}", handle);

@@ -38,12 +38,12 @@ public class HlsTranscoder extends AbstractTranscoder {
 		CommandRequest commandRequestM3u8Playlist = this.buildM3u8PlaylistCommand(spec, hlsTranscodeCompleteFilePath);
 
 		CommandRunner runner = CommandRunnerFactory.newAsyncCommandRunner(new HlsTranscoderCallbackHandler(
-				handle, hlsTranscodeCompleteFilePath));
+				handle, hlsTranscodeCompleteFilePath), true);
 		runner.runCommand(commandRequestHls, new CommandResponse());
 		LOG.debug("transcodeIt::requested hls transcoding in async mode. Handle returned - {}", handle);
 		
 		// This will run with the regular, transcoder call back handler
-		CommandRunner runner2 = CommandRunnerFactory.newAsyncCommandRunner(new TranscoderCallbackHandler(handle));
+		CommandRunner runner2 = CommandRunnerFactory.newAsyncCommandRunner(new TranscoderCallbackHandler(handle), true);
 		runner2.runCommand(commandRequestM3u8Playlist, new CommandResponse());
 		
 		return handle;
